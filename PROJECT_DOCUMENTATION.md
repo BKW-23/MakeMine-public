@@ -157,7 +157,12 @@ hoặc chuyển sang môi trường sản xuất thương mại:
 - [ ] Rate limit cần được triển khai bằng công cụ đã chọn rõ ràng, ví dụ Vercel
       WAF hoặc Upstash Redis; không nên để rate-limit chỉ là “logic tùy từng file”
       mà không có kế hoạch scaling và ops rõ ràng.
-- [ ] Mã đơn hàng nên dùng UUID v4 hoặc random string đủ dài; không dùng ID tuần tự.
+- [ ] Mã đơn hàng hiện tại là `MM-` + chuỗi ngẫu nhiên 12 ký tự alphanumeric,
+      tạo từ UUID hoặc random source; cần xác định định dạng chính thức và độ dài
+      tối thiểu để đánh giá độ dễ đoán trước khi mở bán thật.
+- [ ] Không cho user tự nâng quyền: cần kiểm tra `profiles` có chặn update `role =
+      'admin'` bằng anon key hay không. Test bắt buộc: đăng nhập user thường,
+      dùng anon key và thử update bảng `profiles` để xác nhận RLS chặn.
 - [ ] Dữ liệu cá nhân trong `public.orders` phải có chính sách lưu trữ, thời hạn
       lưu, quyền xem/xóa dữ liệu và cách xử lý khi bắt buộc xóa theo hợp đồng.
 - [ ] Tất cả input từ client đều phải validate bằng schema rõ ràng (ví dụ Zod,
@@ -165,6 +170,8 @@ hoặc chuyển sang môi trường sản xuất thương mại:
       trạng thái sản phẩm, và giá trị hợp lệ.
 - [ ] Mỗi endpoint public cần có logging, khoảng thời gian retry/quota rõ ràng,
       và phản hồi lỗi không lộ thông tin nhạy cảm cho client.
+- [ ] Giới hạn chi phí Gemini: cần cảnh báo trong Google Cloud / AI Studio khi
+      quota sắp cạn, và đặt ngưỡng bot alert để không đốt hết credit của dự án.
 - [ ] Không để các check “có thể chạy local” bị hiểu lầm là “đã đúng cho production”.
       Checklist dưới đây là preflight cho launch thương mại, không phải mô tả tình
       trạng hiện tại của lần deploy demo/public đang chạy.
@@ -203,6 +210,12 @@ hoặc chuyển sang môi trường sản xuất thương mại:
       environment cho tất cả môi trường.
 - [ ] Chuyển migration từ SQL Editor sang workflow versioned bằng Supabase CLI/
       migration pipeline.
+- [ ] Quy trình xoay khóa: nếu `SUPABASE_SERVICE_ROLE_KEY` hoặc `GEMINI_API_KEY`
+      từng bị dán vào commit, chat, ảnh chụp màn hình hay nơi lưu trữ khác, phải
+      revoke và tạo key mới ngay, rồi cập nhật environment production.
+- [ ] Security headers: cấu hình CSP và các header cơ bản trong `vercel.json` để
+      giảm rủi ro XSS và script injection, nhất là vì session auth đang lưu trong
+      localStorage.
 - [ ] Có ngưỡng nhận việc rõ ràng: ai kiểm tra RLS, ai verify production env,
       ai review billing/stock logic, ai sign-off trước khi mở bán.
 
@@ -222,6 +235,36 @@ hoặc chuyển sang môi trường sản xuất thương mại:
       tự do và có thể chứa thông tin cá nhân.
 - [ ] Khi Gemini trả lỗi hoặc hết quota, UI phải hiện thông báo rõ ràng và không
       làm màn hình treo hoặc rỗng.
+
+### 4.5 Tài liệu kỹ thuật, SEO, page states và accessibility [ ]
+
+- [ ] Mỗi endpoint API: method, body, response thành công, response lỗi, giới hạn
+      request, ví dụ payload và cách test.
+- [ ] Sơ đồ kiến trúc: frontend, Vercel API, Supabase, Gemini, auth, storage, CDN.
+- [ ] ER diagram cho `profiles`, `products`, `orders`, `chat_suggestions` và quan
+      hệ giữa các bảng.
+- [ ] Bảng biến môi trường: biến nào dùng client, biến nào dùng server, biến nào
+      bắt buộc cho local và production.
+- [ ] Troubleshooting guide cho `relation already exists`, dữ liệu cũ trong Preview,
+      env chưa redeploy, `401`/`403`, `429`, AI quota exhausted, `Gemini request failed`,
+      và các lỗi migration.
+- [ ] `meta` title, description, Open Graph, favicon và social preview.
+- [ ] Trang 404 cho route không tồn tại.
+- [ ] Loading/error states khi fetch sản phẩm, đơn hàng, AI và auth.
+- [ ] Kiểm tra responsive trên mobile, tablet và desktop.
+- [ ] Kiểm tra accessibility: focus ring, contrast, labels, keyboard navigation,
+      screen reader text, và trạng thái lỗi form.
+
+### 4.6 Chính sách website và compliance [ ]
+
+- [ ] Trang chính sách bảo mật công khai: mục đích xử lý dữ liệu, lưu trữ,
+      quyền xem/xóa dữ liệu cá nhân, chia sẻ với bên thứ ba và thời hạn lưu.
+- [ ] Trang điều khoản sử dụng / chính sách đổi trả / thông tin liên hệ / người bán
+      phải có trên site trước khi bán thật.
+- [ ] Quy trình kiểm tra và ký duyệt trước khi push ra production: landing page,
+      checkout, order tracking, chính sách và các link điều khoản phải dễ truy cập.
+- [ ] Xác nhận với nguồn chính thức quy định pháp lý kinh doanh thương mại điện tử
+      tại Việt Nam trước khi mở bán chính thức.
 
 ## 5. Luồng runtime
 
@@ -260,12 +303,11 @@ cho phép thao tác cần đăng nhập.
 3. Người dùng nhập thông tin giao hàng và xác nhận preview.
 4. Frontend gọi `POST /api/orders`.
 5. Server thực hiện validation chặt chẽ, kiểm tra tồn kho, xác thực thông tin
-   khách hàng và tính lại `total` từ dữ liệu sản phẩm trên server.
-6. Server không tin vào `total`, `base_price`, hay `quantity` do client gửi lên
-   mà phải tính lại dựa trên sản phẩm trong database.
-7. Sau khi xác nhận, server ghi đơn hàng vào `public.orders` và trả về mã đơn
+   khách hàng và tính lại `total` từ dữ liệu sản phẩm trên server; không tin vào
+   `total`, `base_price`, hay `quantity` do client gửi lên.
+6. Sau khi xác nhận, server ghi đơn hàng vào `public.orders` và trả về mã đơn
    duy nhất.
-8. UI hiển thị mã đơn hàng sau khi tạo thành công.
+7. UI hiển thị mã đơn hàng sau khi tạo thành công.
 
 Các ràng buộc bắt buộc khi tạo đơn nên có, nhưng hiện trạng code chưa thực
 hiện đầy đủ atomic stock transaction theo mô hình production. Cần ưu tiên triển
@@ -289,7 +331,8 @@ Endpoint tra cứu nên có:
 - rate limit theo IP/user.
 - giới hạn số request trong một khoảng thời gian.
 - log và chặn truy cập bất thường.
-- mã đơn hàng dạng UUID hoặc chuỗi ngẫu nhiên.
+- mã đơn hàng dạng `MM-` + chuỗi 12 ký tự alphanumeric (hiện đang là random UUID
+  stripped) hoặc UUID v4 nếu muốn tăng độ khó đoán.
 
 ### 5.5 Quản trị
 
@@ -462,8 +505,10 @@ Push code lên branch `main`. Nếu Vercel đã kết nối GitHub repository, d
 được kích hoạt tự động. Nếu không, chọn **Redeploy** trong Vercel.
 
 Checklist cho launch thương mại (đặt trong bối cảnh preflight, không phải mô tả
-trạng thái hiện tại của demo/public đang chạy):
+trạng thái hiện tại của demo/public đang chạy). Nếu đã chạy smoke test thủ công,
+ghi ngày thực tế vào mục `[x]` và giữ nguyên các mục chưa pass ở dạng `[ ]`:
 
+- [ ] Smoke test thủ công đã chạy (ghi ngày thực tế nếu pass).
 - [ ] Trang chủ và catalog hiển thị sản phẩm.
 - [ ] Ảnh sản phẩm tải được.
 - [ ] Đăng ký, OTP, login và logout.
@@ -477,6 +522,8 @@ trạng thái hiện tại của demo/public đang chạy):
 - [ ] AI gift suggestion.
 - [ ] AI greeting generation.
 - [ ] Môi trường production chạy với biến môi trường đúng và không có secret lộ trong bundle.
+- [ ] Preflight thương mại trước khi mở bán: chính sách, checkout, tracking,
+      admin, AI và deploy checklist đều đã được review.
 
 ## 12. Dữ liệu test local
 
@@ -495,10 +542,12 @@ push lên repository.
 - Bổ sung test tự động cho API validation và flow authentication.
 - Cân nhắc thêm audit log cho thao tác admin nếu quyền quản trị mở rộng.
 
-## 14. Yêu cầu pháp lý và bảo vệ dữ liệu
+## 14. Yêu cầu pháp lý và bảo vệ dữ liệu [ ]
 
-- Bán hàng thật tại Việt Nam nên xác minh lại các quy định hiện hành về bảo vệ
-  dữ liệu cá nhân (ví dụ Nghị định 13/2023) và quy trình đăng ký website thương
-  mại điện tử với Bộ Công Thương trước khi mở bán chính thức.
-- Tài liệu pháp lý cần được xác nhận dựa trên nguồn chính thức và không coi đây
-  là lời khuyên pháp lý cuối cùng.
+- [ ] Bán hàng thật tại Việt Nam nên xác minh lại các quy định hiện hành về bảo vệ
+      dữ liệu cá nhân (ví dụ Nghị định 13/2023) và quy trình đăng ký website thương
+      mại điện tử với Bộ Công Thương trước khi mở bán chính thức.
+- [ ] Trang chính sách bảo mật, điều khoản và đổi trả, cùng thông tin liên hệ / người
+      bán, phải được công khai trên site trước khi bán thật.
+- [ ] Tài liệu pháp lý cần được xác nhận dựa trên nguồn chính thức và không coi đây
+      là lời khuyên pháp lý cuối cùng.
