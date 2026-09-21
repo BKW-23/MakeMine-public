@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Loader2, Package, ClipboardList } from "lucide-react";
+import { Plus, Loader2, Package, ClipboardList, Pencil } from "lucide-react";
 import { imageFor, formatVND, CATEGORIES } from "@/lib/productImages";
 
 const STATUS = ["pending", "paid", "shipped", "delivered", "cancelled"];
@@ -11,6 +11,7 @@ export default function Admin() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -58,7 +59,7 @@ export default function Admin() {
               <Plus className="h-4 w-4" /> {showForm ? "Đóng" : "Thêm sản phẩm"}
             </button>
           </div>
-          {showForm && <ProductForm onSaved={() => { setShowForm(false); load(); }} />}
+          {showForm && <ProductForm onSaved={() => { setShowForm(false); setEditingId(null); load(); }} editingId={editingId} onCancel={() => { setShowForm(false); setEditingId(null); }} />}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => (
               <div key={p.id} className="flex gap-3 rounded-xl border border-border bg-card p-3">
@@ -70,7 +71,10 @@ export default function Admin() {
                   <div className="text-xs text-muted-foreground capitalize">{p.category}</div>
                   <div className="text-sm font-semibold text-primary">{formatVND(p.base_price)}</div>
                 </div>
-                <button onClick={() => deleteProduct(p.id)} className="self-start text-xs text-muted-foreground hover:text-destructive">Xoá</button>
+                <div className="flex flex-col gap-2 self-start">
+                  <button onClick={() => { setEditingId(p.id); setShowForm(true); }} className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"><Pencil className="h-3 w-3" /> Sửa</button>
+                  <button onClick={() => deleteProduct(p.id)} className="text-xs text-muted-foreground hover:text-destructive">Xoá</button>
+                </div>
               </div>
             ))}
           </div>
@@ -85,10 +89,21 @@ export default function Admin() {
                   <div className="font-mono text-xs text-muted-foreground">{o.id}</div>
                   <div className="font-medium">{o.customer_name} · {o.customer_phone}</div>
                   <div className="text-xs text-muted-foreground">{o.address}</div>
+                  {o.items && Array.isArray(o.items) && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      {o.items.map((item, index) => (
+                        <div key={`${o.id}-${index}`}>
+                          {item.name || "Sản phẩm"} · qty {item.quantity || 1}
+                          {item.customization?.name && ` · khắc: ${item.customization.name}`}
+                          {item.customization?.message && ` · lời chúc: ${item.customization.message}`}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   <div className="font-semibold text-primary">{formatVND(o.total)}</div>
-                  <div className="text-xs text-muted-foreground">{o.items.length} sản phẩm</div>
+                  <div className="text-xs text-muted-foreground">{o.items?.length || 0} sản phẩm</div>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -110,7 +125,7 @@ export default function Admin() {
   );
 }
 
-function ProductForm({ onSaved }) {
+function ProductForm({ onSaved, editingId, onCancel }) {
   const [form, setForm] = useState({
     name: "", slug: "", category: "móc khoá", base_price: "", short_description: "",
     customizable: true, colors: "Mint, Lilac, Trắng", fonts: "Sans, Script, Mono", featured: false,
@@ -118,13 +133,31 @@ function ProductForm({ onSaved }) {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
+  useEffect(() => {
+    if (!editingId) return;
+    base44.entities.Product.get(editingId).then((product) => {
+      if (!product) return;
+      setForm({
+        name: product.name || "",
+        slug: product.slug || "",
+        category: product.category || "móc khoá",
+        base_price: String(product.base_price || ""),
+        short_description: product.short_description || "",
+        customizable: Boolean(product.customizable),
+        colors: Array.isArray(product.colors) ? product.colors.join(", ") : "",
+        fonts: Array.isArray(product.fonts) ? product.fonts.join(", ") : "",
+        featured: Boolean(product.featured),
+      });
+    }).catch(() => {});
+  }, [editingId]);
+
   const save = async (e) => {
     e.preventDefault();
     if (!form.name || !form.base_price) { setErr("Nhập tên và giá."); return; }
     setSaving(true);
     setErr("");
     try {
-      await base44.entities.Product.create({
+      const payload = {
         name: form.name,
         slug: form.slug || form.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/\s+/g, "-"),
         category: form.category,
@@ -134,7 +167,14 @@ function ProductForm({ onSaved }) {
         colors: form.colors.split(",").map((s) => s.trim()).filter(Boolean),
         fonts: form.fonts.split(",").map((s) => s.trim()).filter(Boolean),
         featured: form.featured,
-      });
+      };
+
+      if (editingId) {
+        await base44.entities.Product.update(editingId, payload);
+      } else {
+        await base44.entities.Product.create(payload);
+      }
+
       onSaved();
     } catch (e) {
       setErr("Không lưu được sản phẩm.");
@@ -156,9 +196,14 @@ function ProductForm({ onSaved }) {
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.customizable} onChange={(e) => setForm({ ...form, customizable: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Có khắc tên</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Nổi bật</label>
       {err && <div className="text-sm text-destructive sm:col-span-2">{err}</div>}
-      <button disabled={saving} className="sm:col-span-2 flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[0_12px_30px_-10px_rgba(255,122,162,0.6)] hover:brightness-105 disabled:opacity-60 min-h-12">
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Lưu sản phẩm
-      </button>
+      <div className="sm:col-span-2 flex items-center gap-3">
+        <button disabled={saving} className="flex-1 flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[0_12px_30px_-10px_rgba(255,122,162,0.6)] hover:brightness-105 disabled:opacity-60 min-h-12">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {editingId ? "Cập nhật sản phẩm" : "Lưu sản phẩm"}
+        </button>
+        {onCancel && (
+          <button type="button" onClick={onCancel} className="rounded-full border border-border px-4 py-3 text-sm font-medium text-muted-foreground">Huỷ</button>
+        )}
+      </div>
     </form>
   );
 }

@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   if (req.method !== "GET") return json(res, 405, { error: "Method not allowed" });
 
   const clientIp = getClientIp(req);
-  if (!checkRateLimit(`order-lookup:${clientIp}`, 20, 60_000)) {
+  if (!(await checkRateLimit(`order-lookup:${clientIp}`, 20, 60_000))) {
     return json(res, 429, { error: "Too many lookup requests. Please wait a moment." });
   }
 

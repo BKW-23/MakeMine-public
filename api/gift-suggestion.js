@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
 
   const clientIp = getClientIp(req);
-  if (!checkRateLimit(`gift-suggestion:${clientIp}`, 12, 60_000)) {
+  if (!(await checkRateLimit(`gift-suggestion:${clientIp}`, 12, 60_000))) {
     return json(res, 429, { error: "Too many requests. Please slow down and try again." });
   }
 

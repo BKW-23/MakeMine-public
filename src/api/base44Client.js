@@ -198,6 +198,15 @@ const products = {
   create(payload) {
     return apiRequest("/api/admin/products", { method: "POST", body: JSON.stringify(payload) });
   },
+  update(id, payload) {
+    return apiRequest(`/api/admin/products/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+  },
+  get(id) {
+    return apiRequest(`/api/admin/products/${encodeURIComponent(id)}`);
+  },
   delete(id) {
     return apiRequest(`/api/admin/products/${encodeURIComponent(id)}`, { method: "DELETE" });
   },
