@@ -1,7 +1,12 @@
-import { json, supabase } from "./_supabase.js";
+import { checkRateLimit, getClientIp, json, supabase } from "./_supabase.js";
 
 const gemini = async (prompt) => {
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing GEMINI_API_KEY");
+  }
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -16,6 +21,12 @@ const gemini = async (prompt) => {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
+
+  const clientIp = getClientIp(req);
+  if (!checkRateLimit(`gift-suggestion:${clientIp}`, 12, 60_000)) {
+    return json(res, 429, { error: "Too many requests. Please slow down and try again." });
+  }
+
   try {
     const occasion = String(req.body?.occasion || "").slice(0, 300);
     const recipient = String(req.body?.recipient || "").slice(0, 300);

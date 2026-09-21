@@ -1,5 +1,29 @@
+import crypto from "node:crypto";
+
 const url = process.env.SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const rateLimitBuckets = new Map();
+
+export const getClientIp = (req) => {
+  const forwarded = req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || "";
+  const firstValue = String(forwarded).split(",")[0]?.trim();
+  return firstValue || req.socket?.remoteAddress || "unknown";
+};
+
+export const checkRateLimit = (key, limit = 10, windowMs = 60_000) => {
+  const bucket = rateLimitBuckets.get(key) || [];
+  const now = Date.now();
+  const recent = bucket.filter((time) => now - time < windowMs);
+  recent.push(now);
+
+  rateLimitBuckets.set(key, recent);
+  return recent.length <= limit;
+};
+
+export const generateOrderCode = () => {
+  const value = crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+  return `MM-${String(value).replace(/-/g, "").slice(0, 12).toUpperCase()}`;
+};
 
 export const supabase = async (path, options = {}) => {
   const response = await fetch(`${url}/rest/v1/${path}`, {
