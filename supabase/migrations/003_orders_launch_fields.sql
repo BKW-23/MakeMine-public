@@ -1,5 +1,30 @@
-alter table public.products
-  add constraint products_stock_nonneg check (stock >= 0) not valid;
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where n.nspname = 'public'
+      and t.relname = 'products'
+      and c.conname = 'products_stock_nonneg'
+  ) then
+    alter table public.products
+      add constraint products_stock_nonneg check (stock >= 0) not valid;
+  end if;
+
+  if exists (
+    select 1
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where n.nspname = 'public'
+      and t.relname = 'products'
+      and c.conname = 'products_stock_nonneg'
+  ) then
+    alter table public.products validate constraint products_stock_nonneg;
+  end if;
+end $$;
 
 alter table public.orders
   add column if not exists shipping_fee integer not null default 0,
