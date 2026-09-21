@@ -193,7 +193,7 @@ export default function Layout() {
           <div>
             <div className="text-sm font-semibold mb-3">Liên hệ</div>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>ĐH FPT, TP. Hồ Chí Minh</li>
+              <li>ĐH FPT, TP. Hà Nội</li>
               <li>hotro@makemine.vn</li>
               <li>TikTok: @makemine</li>
             </ul>
