@@ -51,11 +51,15 @@ export default function Layout() {
     const activeLink = activeNavRef.current;
     if (!nav || !activeLink) return;
 
-    const navRect = nav.getBoundingClientRect();
-    const activeRect = activeLink.getBoundingClientRect();
-    const left = activeRect.left - navRect.left;
-    nav.style.setProperty("--nav-pill-left", `${left}px`);
-    nav.style.setProperty("--nav-pill-width", `${activeRect.width}px`);
+    const timer = window.setTimeout(() => {
+      const navRect = nav.getBoundingClientRect();
+      const activeRect = activeLink.getBoundingClientRect();
+      const left = activeRect.left - navRect.left;
+      nav.style.setProperty("--nav-pill-left", `${left}px`);
+      nav.style.setProperty("--nav-pill-width", `${activeRect.width}px`);
+    }, 80);
+
+    return () => window.clearTimeout(timer);
   }, [location.pathname, isDark]);
 
   const metadata = user?.user_metadata || {};

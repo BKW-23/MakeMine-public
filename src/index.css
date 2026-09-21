@@ -174,11 +174,13 @@
     transform: scale(1.08);
   }
   .brand-mark img {
-    animation: mascotFloat 2.8s ease-in-out infinite;
+    animation: mascotFloat 5.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
   }
   @keyframes mascotFloat {
     0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-2px) scale(1.03); }
+    38% { transform: translateY(-1px) scale(1.01); }
+    58% { transform: translateY(-0.6px) scale(1.006); }
+    75% { transform: translateY(0) scale(1); }
   }
   .brand-stack {
     display: flex;
@@ -282,8 +284,24 @@
     border-radius: 9999px;
     background: linear-gradient(135deg, rgba(255, 228, 236, 0.9) 0%, rgba(255, 215, 236, 0.85) 100%);
     box-shadow: 0 6px 18px -12px rgba(244, 114, 182, 0.5);
-    transition: left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition:
+      left 1.6s cubic-bezier(0.18, 0.8, 0.2, 1.08) 0.12s,
+      width 1.6s cubic-bezier(0.18, 0.8, 0.2, 1.08) 0.12s,
+      transform 0.8s cubic-bezier(0.18, 0.8, 0.2, 1.08),
+      filter 0.6s ease;
     pointer-events: none;
+  }
+  .nav-pill::after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    border-radius: 2px;
+    transform: translateY(-50%) rotate(45deg);
+    box-shadow: 8px 0 16px -10px rgba(244, 114, 182, 0.55);
   }
   html[data-theme='dark'] .nav-pill {
     background: linear-gradient(135deg, rgba(244, 114, 182, 0.2) 0%, rgba(168, 85, 247, 0.18) 48%, rgba(45, 212, 191, 0.18) 100%);
@@ -293,7 +311,7 @@
   .nav-link-item {
     white-space: nowrap;
     color: #475569;
-    transition: color 0.25s ease, transform 0.2s ease;
+    transition: color 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .nav-link-item:hover {
     transform: translateY(-1px);
@@ -307,8 +325,11 @@
   html[data-theme='dark'] .nav-link-item {
     color: #cbd5e1;
   }
+  html[data-theme='dark'] .nav-link-item:hover {
+    color: #cfeeff;
+  }
   html[data-theme='dark'] .nav-link-item.text-primary {
-    color: #f9a8d4;
+    color: #9ad9d9;
   }
   .cart-button,
   .account-button {
@@ -328,16 +349,17 @@
   .cart-badge {
     background: linear-gradient(135deg, #ff7ca8 0%, #ff4d87 100%);
     box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.75), 0 0 12px rgba(255, 77, 135, 0.7);
-    animation: cartBadgeBounce 0.8s ease-in-out infinite;
+    animation: cartBadgeBounce 1.7s cubic-bezier(0.2, 0.8, 0.24, 1) infinite;
     transform-origin: center bottom;
     line-height: 1;
     letter-spacing: -0.02em;
   }
   @keyframes cartBadgeBounce {
     0%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-2px); }
-    50% { transform: translateY(0); }
-    70% { transform: translateY(-1px); }
+    16% { transform: translateY(-1.6px); }
+    32% { transform: translateY(-0.9px); }
+    48% { transform: translateY(-0.2px); }
+    72% { transform: translateY(0); }
   }
 
   .account-button,
@@ -448,11 +470,13 @@
     width: 66px;
     height: 36px;
     color: rgba(255,255,255,0.9);
-    animation: floatCloud 4s ease-in-out infinite alternate;
+    animation: floatCloud 6.8s ease-in-out infinite;
   }
   @keyframes floatCloud {
-    0% { transform: translateX(0px); }
-    100% { transform: translateX(6px); }
+    0%, 100% { transform: translate(0px, 0px); }
+    25% { transform: translate(2px, -2px); }
+    50% { transform: translate(5px, -4px); }
+    75% { transform: translate(3px, -1px); }
   }
   .theme-toggle-knob {
     position: absolute;
