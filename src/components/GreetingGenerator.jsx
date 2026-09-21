@@ -55,12 +55,12 @@ export default function GreetingGenerator({ productName, onConfirm }) {
       {!confirmed && (
         <form onSubmit={generate} className="grid gap-3">
           <div className="grid grid-cols-2 gap-3">
-            <input value={form.recipient} onChange={(e) => setForm({ ...form, recipient: e.target.value })} placeholder="Người nhận" className="rounded-lg border border-input bg-white px-3 py-2.5 text-sm text-black outline-none focus:border-primary min-h-11" />
-            <input value={form.relationship} onChange={(e) => setForm({ ...form, relationship: e.target.value })} placeholder="Mối quan hệ (bạn thân, người yêu...)" className="rounded-lg border border-input bg-white px-3 py-2.5 text-sm text-black outline-none focus:border-primary min-h-11" />
+            <input value={form.recipient} onChange={(e) => setForm({ ...form, recipient: e.target.value })} placeholder="Người nhận" className="rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-400 focus:border-primary min-h-11" />
+            <input value={form.relationship} onChange={(e) => setForm({ ...form, relationship: e.target.value })} placeholder="Mối quan hệ (bạn thân, người yêu...)" className="rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-400 focus:border-primary min-h-11" />
           </div>
-          <input value={form.occasion} onChange={(e) => setForm({ ...form, occasion: e.target.value })} placeholder="Dịp tặng (sinh nhật, kỷ niệm...)" className="w-full rounded-lg border border-input bg-white px-3 py-2.5 text-sm text-black outline-none focus:border-primary min-h-11" />
-          <input value={form.hobbies} onChange={(e) => setForm({ ...form, hobbies: e.target.value })} placeholder="Sở thích người nhận" className="w-full rounded-lg border border-input bg-white px-3 py-2.5 text-sm text-black outline-none focus:border-primary min-h-11" />
-          <input value={form.keywords} onChange={(e) => setForm({ ...form, keywords: e.target.value })} placeholder="Từ khoá tuỳ chọn (ngọt ngào, hài hước...)" className="w-full rounded-lg border border-input bg-white px-3 py-2.5 text-sm text-black outline-none focus:border-primary min-h-11" />
+          <input value={form.occasion} onChange={(e) => setForm({ ...form, occasion: e.target.value })} placeholder="Dịp tặng (sinh nhật, kỷ niệm...)" className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-400 focus:border-primary min-h-11" />
+          <input value={form.hobbies} onChange={(e) => setForm({ ...form, hobbies: e.target.value })} placeholder="Sở thích người nhận" className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-400 focus:border-primary min-h-11" />
+          <input value={form.keywords} onChange={(e) => setForm({ ...form, keywords: e.target.value })} placeholder="Từ khoá tuỳ chọn (ngọt ngào, hài hước...)" className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-400 focus:border-primary min-h-11" />
 
           {error && <div className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{error}</div>}
 
@@ -103,7 +103,7 @@ export default function GreetingGenerator({ productName, onConfirm }) {
             value={editing}
             onChange={(e) => setEditing(e.target.value.slice(0, 120))}
             rows={2}
-            className="w-full rounded-lg border border-input bg-white px-3 py-2 text-sm text-black outline-none focus:border-primary"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none placeholder:text-slate-400 focus:border-primary"
           />
           <div className="flex justify-between gap-2">
             <button onClick={() => { setSelected(null); setEditing(""); }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">

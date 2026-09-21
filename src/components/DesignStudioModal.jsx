@@ -363,7 +363,7 @@ export default function DesignStudioModal({
                 placeholder="Tên cần khắc (tối đa 20 ký tự)"
                 rows={2}
                 wrap="soft"
-                className="w-full resize-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-black outline-none placeholder:text-slate-400 focus:border-pink-400"
+                className="w-full resize-none rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 outline-none placeholder:text-slate-400 focus:border-pink-400"
               />
               <textarea
                 value={message}
@@ -371,7 +371,7 @@ export default function DesignStudioModal({
                 placeholder="Lời nhắn (không bắt buộc)"
                 rows={2}
                 wrap="soft"
-                className="w-full resize-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-black outline-none placeholder:text-slate-400 focus:border-pink-400"
+                className="w-full resize-none rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 outline-none placeholder:text-slate-400 focus:border-pink-400"
               />
               <label className="flex items-center gap-2 text-xs text-slate-300">
                 <input

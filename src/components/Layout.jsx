@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { History, LogIn, LogOut, ShoppingBag, Menu, X } from "lucide-react";
+import { History, LogIn, LogOut, ShoppingBag, Menu, MoonStar, SunMedium, X } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import GiftAssistant from "@/components/GiftAssistant";
 import { useAuth } from "@/lib/AuthContext";
@@ -20,7 +20,23 @@ export default function Layout() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   const accountRef = useRef(null);
+  const navRef = useRef(null);
+  const activeNavRef = useRef(null);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("makemine-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const nextDark = savedTheme ? savedTheme === "dark" : prefersDark;
+    setIsDark(nextDark);
+    document.documentElement.dataset.theme = nextDark ? "dark" : "light";
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = isDark ? "dark" : "light";
+    localStorage.setItem("makemine-theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -30,6 +46,18 @@ export default function Layout() {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
+  useEffect(() => {
+    const nav = navRef.current;
+    const activeLink = activeNavRef.current;
+    if (!nav || !activeLink) return;
+
+    const navRect = nav.getBoundingClientRect();
+    const activeRect = activeLink.getBoundingClientRect();
+    const left = activeRect.left - navRect.left;
+    nav.style.setProperty("--nav-pill-left", `${left}px`);
+    nav.style.setProperty("--nav-pill-width", `${activeRect.width}px`);
+  }, [location.pathname, isDark]);
+
   const metadata = user?.user_metadata || {};
   const displayName = metadata.full_name || metadata.name || user?.email?.split("@")[0] || "Tài khoản";
   const avatarUrl = metadata.avatar_url || metadata.picture || "";
@@ -37,29 +65,38 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-40 glass">
+      <header className="glass-header sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 group">
-              <span className="relative grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground engraved">
-                <span aria-hidden="true" className="absolute -top-1 left-1 h-3 w-3 rounded-full bg-primary" />
-                <span aria-hidden="true" className="absolute -top-1 right-1 h-3 w-3 rounded-full bg-primary" />
-                <img src="/favicon.png" alt="" className="relative z-10 h-full w-full rounded-full object-cover" />
-              </span>
-              <span className="font-display text-lg font-bold tracking-tight">
-                Make<span className="text-primary">Mine</span>
-              </span>
+            <Link to="/" className="group flex items-center gap-2.5 py-2">
+              <div className="relative flex items-center justify-center">
+                <span className="brand-mark relative grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-gradient-to-tr from-cyan-400 via-sky-300 to-indigo-200 shadow-md shadow-cyan-300/40 transition-transform duration-300 group-hover:scale-105">
+                  <img src="/favicon.png" alt="Make Mine logo" className="h-full w-full object-cover" />
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="flex items-center text-[1.45rem] font-black leading-none tracking-[-0.04em]">
+                  <span className="brand-make">Make</span>
+                  <span className="brand-mine">Mine</span>
+                </span>
+                <span className="-mt-1 hidden text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400 sm:block dark:text-slate-500">
+                  Beauty &amp; Accessories
+                </span>
+              </div>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1">
+            <nav ref={navRef} className="nav-shell hidden md:flex items-center gap-1 relative">
+              <span className="nav-pill" aria-hidden="true" />
               {NAV.map((n) => {
                 const active = location.pathname === n.to || (n.to !== "/" && location.pathname.startsWith(n.to));
                 return (
                   <Link
                     key={n.to}
                     to={n.to}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ref={active ? activeNavRef : null}
+                    className={`nav-link-item relative z-10 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                      active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {n.label}
@@ -69,14 +106,45 @@ export default function Layout() {
             </nav>
 
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsDark((value) => !value)}
+                className={`theme-toggle-button ${isDark ? "is-dark" : ""}`}
+                aria-label={isDark ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+              >
+                <span className="theme-toggle-sun-glow" aria-hidden="true" />
+
+                <span className="theme-toggle-stars" aria-hidden="true">
+                  <svg className="theme-star-svg star-svg-a" viewBox="0 0 24 24">
+                    <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5Z" />
+                  </svg>
+                  <svg className="theme-star-svg star-svg-b" viewBox="0 0 24 24">
+                    <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5Z" />
+                  </svg>
+                  <span className="theme-shooting-star" aria-hidden="true" />
+                </span>
+
+                <span className="theme-clouds" aria-hidden="true">
+                  <svg className="theme-cloud-svg" viewBox="0 0 100 60" fill="currentColor">
+                    <path d="M20 50 A15 15 0 0 1 35 25 A22 22 0 0 1 70 20 A18 18 0 0 1 92 40 A12 12 0 0 1 85 55 Z" />
+                  </svg>
+                </span>
+
+                <span className="theme-toggle-knob">
+                  <span className="theme-toggle-core" />
+                  <span className="theme-moon-crater crater-1" />
+                  <span className="theme-moon-crater crater-2" />
+                  <span className="theme-moon-crater crater-3" />
+                </span>
+              </button>
               <Link
                 to="/gio-hang"
-                className="relative grid h-10 w-10 place-items-center rounded-lg bg-secondary text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                className="cart-button relative grid h-10 w-10 place-items-center rounded-xl bg-secondary/80 text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
                 aria-label="Giỏ hàng"
               >
                 <ShoppingBag className="h-5 w-5" />
                 {count > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  <span className="cart-badge absolute -right-1.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[8px] font-bold text-primary-foreground">
                     {count}
                   </span>
                 )}
@@ -86,7 +154,7 @@ export default function Layout() {
                   <button
                     type="button"
                     onClick={() => setAccountOpen((value) => !value)}
-                    className="flex h-10 items-center gap-2 rounded-lg bg-secondary px-2 text-left hover:bg-primary/10 transition-colors"
+                    className="account-button flex h-10 items-center gap-2 rounded-xl bg-secondary/80 px-2 text-left hover:bg-primary/10 transition-colors"
                     aria-expanded={accountOpen}
                     aria-label="Tài khoản"
                   >

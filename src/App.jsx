@@ -45,6 +45,8 @@ const AuthenticatedApp = () => {
           <Route path="/san-pham/:slug" element={<ProductDetail />} />
           <Route path="/gio-hang" element={<Cart />} />
           <Route path="/don-hang" element={<OrderTracking />} />
+          <Route path="/dieu-khoan" element={<Terms />} />
+          <Route path="/huong-dan" element={<Guide />} />
           <Route element={<ProtectedRoute unauthenticatedElement={<Login />} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
@@ -53,8 +55,6 @@ const AuthenticatedApp = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/dieu-khoan" element={<Terms />} />
-        <Route path="/huong-dan" element={<Guide />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </CartProvider>

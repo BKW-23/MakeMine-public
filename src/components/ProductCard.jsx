@@ -7,7 +7,7 @@ export default function ProductCard({ product, reason = null }) {
   return (
     <Link
       to={`/san-pham/${product.slug || product.id}`}
-      className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-[0_18px_50px_-24px_rgba(255,122,162,0.28)] transition-all duration-300 hover:border-primary/40 hover:-translate-y-1"
+      className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-[0_18px_50px_-24px_rgba(255,122,162,0.28)] transition-all duration-300 hover:border-primary/40 hover:shadow-[0_22px_56px_-24px_rgba(244,114,182,0.45)]"
     >
       <div className="relative aspect-square overflow-hidden bg-secondary">
         {img ? (
