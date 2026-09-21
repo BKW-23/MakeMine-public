@@ -182,9 +182,7 @@ export default function Layout() {
           <div>
             <div className="text-sm font-semibold mb-3">Khám phá</div>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/san-pham" className="hover:text-primary">Tất cả sản phẩm</Link></li>
-              <li><Link to="/san-pham?category=gương" className="hover:text-primary">Gương khắc tên</Link></li>
-              <li><Link to="/san-pham?category=kẹp tóc" className="hover:text-primary">Kẹp tóc</Link></li>
+              <li><Link to="/san-pham" className="hover:text-primary">Sản phẩm</Link></li>
               <li><Link to="/don-hang" className="hover:text-primary">Theo dõi đơn hàng</Link></li>
               <li><Link to="/huong-dan" className="hover:text-primary">Hướng dẫn mua hàng</Link></li>
               <li><Link to="/dieu-khoan" className="hover:text-primary">Điều khoản sử dụng</Link></li>
