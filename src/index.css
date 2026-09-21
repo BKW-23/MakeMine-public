@@ -349,17 +349,14 @@
   .cart-badge {
     background: linear-gradient(135deg, #ff7ca8 0%, #ff4d87 100%);
     box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.75), 0 0 12px rgba(255, 77, 135, 0.7);
-    animation: cartBadgeBounce 1.7s cubic-bezier(0.2, 0.8, 0.24, 1) infinite;
+    animation: cartBadgeDrift 2.2s ease-in-out infinite;
     transform-origin: center bottom;
     line-height: 1;
     letter-spacing: -0.02em;
   }
-  @keyframes cartBadgeBounce {
+  @keyframes cartBadgeDrift {
     0%, 100% { transform: translateY(0); }
-    16% { transform: translateY(-1.6px); }
-    32% { transform: translateY(-0.9px); }
-    48% { transform: translateY(-0.2px); }
-    72% { transform: translateY(0); }
+    50% { transform: translateY(2.8px); }
   }
 
   .account-button,
