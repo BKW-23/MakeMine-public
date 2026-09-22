@@ -258,7 +258,7 @@ export default function ProductDetail() {
                 <input type="checkbox" checked={includeMessage} onChange={(event) => setIncludeMessage(event.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
                 Khắc cả lời chúc lên sản phẩm
               </label>
-              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3 text-xs">
+              <label className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-xs transition-colors ${useAiGreeting ? "border-primary/40 bg-primary/5" : "border-border bg-background/40"}`}>
                 <span>
                   <span className="block font-medium text-foreground">AI gợi ý lời chúc</span>
                   <span className="mt-0.5 block text-muted-foreground">Bật khi bạn muốn tham khảo và biến tấu lời chúc.</span>

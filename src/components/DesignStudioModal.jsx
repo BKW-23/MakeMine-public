@@ -383,7 +383,7 @@ export default function DesignStudioModal({
                 />
                 Khắc cả lời chúc
               </label>
-              <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-900/60 p-3 text-xs text-slate-300">
+              <label className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-xs text-slate-300 transition-colors ${showGreetingGenerator ? "border-pink-400/50 bg-pink-500/5" : "border-slate-700 bg-slate-900/60"}`}>
                 <span>
                   <span className="block font-medium text-slate-100">AI gợi ý lời chúc</span>
                   <span className="mt-0.5 block text-[11px] text-slate-400">Bật để tham khảo rồi chỉnh sửa theo ý bạn.</span>
