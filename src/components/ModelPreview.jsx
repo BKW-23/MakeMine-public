@@ -309,18 +309,19 @@ export default function ModelPreview({
           });
         });
 
-        if (currentText.text) {
+        const hasName = Boolean(currentText.text && currentText.text.trim());
+        const hasMessage = Boolean(currentText.includeMessage && currentText.message && currentText.message.trim());
+        if (hasName || hasMessage) {
           const canvas = document.createElement("canvas");
           let context = canvas.getContext("2d");
-          const hasMessage = currentText.includeMessage && currentText.message;
           const textFont = "bold 112px sans-serif";
           const messageFont = "italic 42px sans-serif";
-          const nameLines = currentText.text.split(/\r?\n/);
+          const nameLines = hasName ? currentText.text.split(/\r?\n/) : [];
           const messageLines = hasMessage ? currentText.message.split(/\r?\n/) : [];
           context.font = textFont;
-          const nameWidth = Math.max(...nameLines.map((line) => context.measureText(line || " ").width));
+          const nameWidth = nameLines.length ? Math.max(...nameLines.map((line) => context.measureText(line || " ").width)) : 0;
           context.font = messageFont;
-          const messageWidth = hasMessage
+          const messageWidth = messageLines.length
             ? Math.max(...messageLines.map((line) => context.measureText(`“${line}”`).width))
             : 0;
           const nameLineHeight = 130;
@@ -333,14 +334,17 @@ export default function ModelPreview({
           context.fillStyle = currentText.textColor || "#000000";
           context.textAlign = "center";
           context.textBaseline = "middle";
-          context.font = textFont;
-          nameLines.forEach((line, index) => {
-            context.fillText(line, canvas.width / 2, nameLineHeight / 2 + index * nameLineHeight);
-          });
+          if (nameLines.length) {
+            context.font = textFont;
+            nameLines.forEach((line, index) => {
+              context.fillText(line, canvas.width / 2, nameLineHeight / 2 + index * nameLineHeight);
+            });
+          }
           if (hasMessage) {
             context.font = messageFont;
             messageLines.forEach((line, index) => {
-              context.fillText(`“${line}”`, canvas.width / 2, nameHeight + 21 + index * messageLineHeight);
+              const y = nameHeight + 21 + index * messageLineHeight;
+              context.fillText(`“${line}”`, canvas.width / 2, y);
             });
           }
           textTexture = new THREE.CanvasTexture(canvas);
