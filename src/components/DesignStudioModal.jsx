@@ -397,7 +397,21 @@ export default function DesignStudioModal({
 
         <aside
           className={`z-30 flex min-h-0 w-full shrink-0 flex-col overflow-y-auto border-t border-slate-800 bg-slate-950 lg:relative lg:z-auto lg:max-h-none lg:w-72 lg:border-l lg:border-t-0 ${mobilePanel === "controls" ? "lg:static lg:w-72" : "hidden lg:flex"}`}
-          style={isMobile && mobilePanel === "controls" ? { height: `${mobilePanelHeight}px`, maxHeight: "70vh" } : undefined}
+          style={
+            isMobile && mobilePanel === "controls"
+              ? {
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: `${mobilePanelHeight}px`,
+                  maxHeight: "70vh",
+                  borderRadius: "1rem 1rem 0 0",
+                  zIndex: 40,
+                  boxShadow: "0 -10px 30px rgba(15, 23, 42, 0.45)",
+                }
+              : undefined
+          }
         >
           <div className="flex items-center justify-between gap-2 border-b border-slate-800 p-3 text-xs font-semibold uppercase tracking-wider text-slate-300 sm:p-4">
             <div
