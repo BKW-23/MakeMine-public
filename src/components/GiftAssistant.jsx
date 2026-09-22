@@ -17,11 +17,8 @@ export default function GiftAssistant() {
   const [recipient, setRecipient] = useState("");
   const [budget, setBudget] = useState("");
   const [loading, setLoading] = useState(false);
-  const [trendsLoading, setTrendsLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [trends, setTrends] = useState([]);
   const [error, setError] = useState("");
-  const [trendsError, setTrendsError] = useState("");
   const [products, setProducts] = useState({});
   const panelRef = useRef(null);
 
@@ -70,29 +67,6 @@ export default function GiftAssistant() {
       setError("Không lấy được gợi ý lúc này, vui lòng thử lại.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const findTrends = async () => {
-    if (!occasion && !recipient) {
-      setTrendsError("Nhập dịp tặng hoặc người nhận trước khi tìm xu hướng.");
-      return;
-    }
-    setTrendsLoading(true);
-    setTrendsError("");
-    try {
-      const res = await base44.functions.invoke("giftTrends", {
-        occasion,
-        recipient,
-        budget,
-      });
-      const data = res.data || res;
-      setTrends(data.results || []);
-    } catch (err) {
-      setTrends([]);
-      setTrendsError(err.message || "Không tìm được xu hướng lúc này.");
-    } finally {
-      setTrendsLoading(false);
     }
   };
 
@@ -169,15 +143,6 @@ export default function GiftAssistant() {
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   {loading ? "Đang gợi ý..." : "Gợi ý quà tặng"}
                 </button>
-                <button
-                  type="button"
-                  onClick={findTrends}
-                  disabled={trendsLoading}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary hover:bg-primary/10 disabled:opacity-60 min-h-12"
-                >
-                  {trendsLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                  {trendsLoading ? "Đang tìm trên web..." : "Tìm xu hướng web"}
-                </button>
               </form>
 
               <div className="flex flex-wrap gap-2">
@@ -198,26 +163,6 @@ export default function GiftAssistant() {
               </div>
 
               {error && <div className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{error}</div>}
-              {trendsError && <div className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{trendsError}</div>}
-
-              {!trendsLoading && trends.length > 0 && (
-                <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-3">
-                  <div className="text-xs font-medium uppercase tracking-wider text-primary">Tham khảo từ web</div>
-                  {trends.map((trend) => (
-                    <a
-                      key={trend.url}
-                      href={trend.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block rounded-lg border border-border/70 bg-card/70 p-2.5 hover:border-primary/40"
-                    >
-                      <div className="text-sm font-medium leading-tight">{trend.title}</div>
-                      {trend.snippet && <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{trend.snippet}</div>}
-                    </a>
-                  ))}
-                </div>
-              )}
-
               {loading && (
                 <div className="space-y-3">
                   {[0, 1, 2].map((i) => (
