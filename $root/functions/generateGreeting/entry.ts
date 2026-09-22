@@ -2,8 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 
 export default async function(req) {
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
+    const BKW = createClientFromRequest(req);
+    const user = await BKW.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
@@ -34,7 +34,7 @@ Yêu cầu:
 - Không dùng emoji, không dấu ngoặc kép, không xuống dòng trong lời chúc.
 - Trả về JSON theo schema.`;
 
-    const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    const res = await BKW.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       response_json_schema: {
         type: "object",

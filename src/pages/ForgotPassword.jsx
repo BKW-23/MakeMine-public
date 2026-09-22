@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { BKW } from "@/api/bkwClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,7 @@ export default function ForgotPassword() {
     setError("");
     setLoading(true);
     try {
-      await base44.auth.resetPasswordRequest(email);
+      await BKW.auth.resetPasswordRequest(email);
       setSent(true);
     } catch (err) {
       setError(err.message || "Unable to send the reset email.");

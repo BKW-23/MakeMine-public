@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Search, Package } from "lucide-react";
 import { formatVND } from "@/lib/productImages";
 import { useAuth } from "@/lib/AuthContext";
-import { base44 } from "@/api/base44Client";
+import { BKW } from "@/api/bkwClient";
 import { stickerLabel } from "@/lib/stickers";
 
 const STATUS = {
@@ -50,7 +50,7 @@ export default function OrderTracking() {
   useEffect(() => {
     if (!isAuthenticated) return;
     setHistoryLoading(true);
-    base44.entities.Order.history()
+    BKW.entities.Order.history()
       .then((data) => {
         setOrders(data);
       })

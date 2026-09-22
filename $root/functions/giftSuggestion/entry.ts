@@ -3,14 +3,14 @@ import { waitUntil } from 'base44:runtime';
 
 export default async function(req) {
   try {
-    const base44 = createClientFromRequest(req);
+    const BKW = createClientFromRequest(req);
     const body = await req.json();
     const occasion = (body.occasion || '').toString().slice(0, 300);
     const recipient = (body.recipient || '').toString().slice(0, 300);
     const budgetRaw = body.budget;
     const budget = budgetRaw && !isNaN(Number(budgetRaw)) ? Number(budgetRaw) : null;
 
-    const products = await base44.asServiceRole.entities.Product.list('-created_date', 60);
+    const products = await BKW.asServiceRole.entities.Product.list('-created_date', 60);
     const productList = products.map((p) => ({
       id: p.id,
       name: p.name,
@@ -31,7 +31,7 @@ export default async function(req) {
       `Với mỗi sản phẩm, viết lý do phù hợp trong 1 câu ngắn gọn, thân thiện, hướng tới đối tượng trẻ. ` +
       `Trả lời CHỈ bằng JSON, không kèm giải thích thêm.`;
 
-    const llmRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    const llmRes = await BKW.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       response_json_schema: {
         type: 'object',
@@ -71,7 +71,7 @@ export default async function(req) {
 
     const userQuery = [occasion, recipient, budget ? budget + 'k' : ''].filter(Boolean).join(' | ');
     waitUntil(
-      base44.asServiceRole.entities.ChatSuggestion.create({
+      BKW.asServiceRole.entities.ChatSuggestion.create({
         user_query: userQuery,
         occasion,
         recipient,

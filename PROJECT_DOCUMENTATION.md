@@ -31,7 +31,7 @@ Stack triển khai hiện tại:
 - [src/App.jsx](src/App.jsx): router và provider.
 - [src/main.jsx](src/main.jsx): bootstrap ứng dụng.
 - [src/index.css](src/index.css): theme, animation và utility styles.
-- [src/api/base44Client.js](src/api/base44Client.js): lớp tương thích tên cũ,
+- [src/api/bkwClient.js](src/api/bkwClient.js): client frontend của BKW,
   nhưng runtime bên trong gọi Supabase REST và các API nội bộ.
 - [src/lib/AuthContext.jsx](src/lib/AuthContext.jsx): trạng thái đăng nhập.
 - [src/lib/cart.jsx](src/lib/cart.jsx): giỏ hàng lưu trong localStorage.
@@ -270,7 +270,7 @@ hoặc chuyển sang môi trường sản xuất thương mại:
 
 ### 5.1 Đọc sản phẩm
 
-Frontend gọi `Product.list()` trong [src/api/base44Client.js](src/api/base44Client.js).
+Frontend gọi `Product.list()` trong [src/api/bkwClient.js](src/api/bkwClient.js).
 Khi đủ biến môi trường, request đi tới Supabase REST:
 
 ```text

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Wand2, Sparkles } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { BKW } from "@/api/bkwClient";
 import ProductCard from "@/components/ProductCard";
 import { heroImage, CATEGORIES } from "@/lib/productImages";
 
@@ -20,7 +20,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    base44.entities.Product.list("-created_date", 60).then((all) => {
+    BKW.entities.Product.list("-created_date", 60).then((all) => {
       const f = all.filter((p) => p.featured);
       setFeatured(f.length ? f : all.slice(0, 6));
       setLoading(false);

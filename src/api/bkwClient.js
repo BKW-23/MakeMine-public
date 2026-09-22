@@ -314,4 +314,4 @@ const adminApiStatus = {
   },
 };
 
-export const base44 = { entities: { Product: products, Order: orders }, functions, auth, adminApiStatus };
+export const BKW = { entities: { Product: products, Order: orders }, functions, auth, adminApiStatus };

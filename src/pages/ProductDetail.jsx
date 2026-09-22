@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Sparkles, X } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { BKW } from "@/api/bkwClient";
 import { useCart } from "@/lib/cart";
 import { imageFor, formatVND } from "@/lib/productImages";
 import { STICKERS } from "@/lib/stickers";
@@ -41,7 +41,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     setLoading(true);
-    base44.entities.Product.list("-created_date", 60).then((all) => {
+    BKW.entities.Product.list("-created_date", 60).then((all) => {
       const p = all.find((x) => x.slug === slug || x.id === slug);
       setProduct(p || null);
       if (p) {

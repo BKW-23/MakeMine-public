@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { BKW } from "@/api/bkwClient";
 import { Plus, Loader2, Package, ClipboardList, Pencil, Search, ExternalLink, Activity, CheckCircle2, CircleAlert } from "lucide-react";
 import { imageFor, formatVND, CATEGORIES } from "@/lib/productImages";
 
@@ -23,8 +23,8 @@ export default function Admin() {
   const load = () => {
     setLoading(true);
     Promise.all([
-      base44.entities.Product.list("-created_date", 60),
-      base44.entities.Order.list("-created_date", 60),
+      BKW.entities.Product.list("-created_date", 60),
+      BKW.entities.Order.list("-created_date", 60),
     ]).then(([p, o]) => {
       setProducts(p);
       setOrders(o);
@@ -35,13 +35,13 @@ export default function Admin() {
   useEffect(() => { load(); }, []);
 
   const updateOrderStatus = async (id, status) => {
-    await base44.entities.Order.update(id, { status });
+    await BKW.entities.Order.update(id, { status });
     load();
   };
 
   const deleteProduct = async (id) => {
     if (!confirm("Xoá sản phẩm này?")) return;
-    await base44.entities.Product.delete(id);
+    await BKW.entities.Product.delete(id);
     load();
   };
 
@@ -49,7 +49,7 @@ export default function Admin() {
     setResearchLoading(true);
     setResearchError("");
     try {
-      const response = await base44.functions.invoke("competitorResearch", {
+      const response = await BKW.functions.invoke("competitorResearch", {
         categories: ["móc khóa", "gương", "lược", "kẹp tóc"],
       });
       const data = response.data || response;
@@ -67,7 +67,7 @@ export default function Admin() {
     setApiLoading(true);
     setApiError("");
     try {
-      setApiStatus(await base44.adminApiStatus.get());
+      setApiStatus(await BKW.adminApiStatus.get());
     } catch (error) {
       setApiError(error.message || "Không thể kiểm tra API.");
     } finally {
@@ -263,7 +263,7 @@ function ProductForm({ onSaved, editingId, onCancel }) {
 
   useEffect(() => {
     if (!editingId) return;
-    base44.entities.Product.get(editingId).then((product) => {
+    BKW.entities.Product.get(editingId).then((product) => {
       if (!product) return;
       setForm({
         name: product.name || "",
@@ -298,9 +298,9 @@ function ProductForm({ onSaved, editingId, onCancel }) {
       };
 
       if (editingId) {
-        await base44.entities.Product.update(editingId, payload);
+        await BKW.entities.Product.update(editingId, payload);
       } else {
-        await base44.entities.Product.create(payload);
+        await BKW.entities.Product.create(payload);
       }
 
       onSaved();

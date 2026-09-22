@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Wand2, Loader2, Check, Pencil, RefreshCw } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { BKW } from "@/api/bkwClient";
 
 export default function GreetingGenerator({ productName, onConfirm }) {
   const [form, setForm] = useState({ recipient: "", relationship: "", occasion: "", hobbies: "", keywords: "" });
@@ -23,7 +23,7 @@ export default function GreetingGenerator({ productName, onConfirm }) {
     setSelected(null);
     setConfirmed(false);
     try {
-      const res = await base44.functions.invoke("generateGreeting", { ...form, productName });
+      const res = await BKW.functions.invoke("generateGreeting", { ...form, productName });
       setGreetings(res.data.greetings || []);
     } catch (err) {
       setError(err?.response?.data?.error || "Không tạo được lời chúc, thử lại nhé.");

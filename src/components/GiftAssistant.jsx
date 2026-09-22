@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Sparkles, X, Send, Loader2, Wand2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { BKW } from "@/api/bkwClient";
 import { imageFor, formatVND } from "@/lib/productImages";
 
 const QUICK = [
@@ -58,7 +58,7 @@ export default function GiftAssistant() {
     setResults([]);
     setExpandedSuggestion(null);
     try {
-      const res = await base44.functions.invoke("giftSuggestion", {
+      const res = await BKW.functions.invoke("giftSuggestion", {
         occasion: o,
         recipient: r,
         budget: b ? Number(b) : null,
@@ -68,7 +68,7 @@ export default function GiftAssistant() {
       setResults(sugg);
       if (sugg.length) {
         const ids = sugg.map((s) => s.product_id);
-        const all = await base44.entities.Product.list("-created_date", 60);
+        const all = await BKW.entities.Product.list("-created_date", 60);
         const map = {};
         all.forEach((p) => {
           if (ids.includes(p.id)) map[p.id] = p;
