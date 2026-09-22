@@ -310,7 +310,7 @@ const auth = {
 
 const adminApiStatus = {
   get() {
-    return apiRequest("/api/admin/api-status");
+    return apiRequest("/api/admin/competitor-research?mode=status");
   },
 };
 
