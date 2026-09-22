@@ -1,4 +1,4 @@
--- Security hardening for the migration generated from the Base44 entity specs.
+-- Security hardening for the BKW entity schema.
 -- Customer data is never readable by anon/authenticated clients; server endpoints
 -- use the service role only after applying their own validation/auth checks.
 
