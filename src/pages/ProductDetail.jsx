@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart";
 import { imageFor, formatVND } from "@/lib/productImages";
 import { STICKERS } from "@/lib/stickers";
 import DesignStudioModal from "@/components/DesignStudioModal";
+import GreetingGenerator from "@/components/GreetingGenerator";
 
 const ENGRAVING_COLORS = [
   { id: "Hồng đào", hex: "#E887A5" },
@@ -32,6 +33,7 @@ export default function ProductDetail() {
   const [message, setMessage] = useState("");
   const [includeMessage, setIncludeMessage] = useState(false);
   const [useAiGreeting, setUseAiGreeting] = useState(false);
+  const [greetingForm, setGreetingForm] = useState({ recipient: "", relationship: "", occasion: "", hobbies: "", keywords: "" });
   const [textSurface, setTextSurface] = useState(null);
   const [textScale, setTextScale] = useState(1);
   const [textRotation, setTextRotation] = useState(0);
@@ -268,7 +270,13 @@ export default function ProductDetail() {
               {useAiGreeting && (
                 <GreetingGenerator
                   productName={product.name}
-                  onConfirm={(nextMessage) => { setMessage(nextMessage); setIncludeMessage(true); }}
+                  initialForm={greetingForm}
+                  onFormChange={setGreetingForm}
+                  onConfirm={(nextMessage) => {
+                    setMessage(nextMessage);
+                    setIncludeMessage(true);
+                    setUseAiGreeting(true);
+                  }}
                 />
               )}
             </div>
@@ -329,6 +337,8 @@ export default function ProductDetail() {
           engravingType={engravingType}
           includeMessage={includeMessage}
           showGreetingGenerator={useAiGreeting}
+          greetingForm={greetingForm}
+          onGreetingFormChange={setGreetingForm}
           initialTextSurface={textSurface}
           initialTextScale={textScale}
           initialTextRotation={textRotation}

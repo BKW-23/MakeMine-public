@@ -24,7 +24,7 @@ export default function ModelPreview({
   onMoveText,
 }) {
   const containerRef = useRef(null);
-  const [showHint, setShowHint] = useState(true);
+  const [showHint, setShowHint] = useState(false);
   const layersRef = useRef(layers);
   const selectedIdRef = useRef(selectedId);
   const onSelectLayerRef = useRef(onSelectLayer);
