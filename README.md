@@ -39,6 +39,7 @@ SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 GEMINI_API_KEY=YOUR_GEMINI_KEY
+TINYFISH_API_KEY=YOUR_TINYFISH_KEY
 ```
 
 Set all five variables for Vercel Production, redeploy, and add the deployed
@@ -54,3 +55,5 @@ npm run lint
 
 The `api/` directory contains Vercel functions. Secrets are read only from
 server-side environment variables and are never imported into the browser build.
+The optional `TINYFISH_API_KEY` powers web trend lookup from the gift assistant;
+it does not replace Gemini for text generation or image preview.
