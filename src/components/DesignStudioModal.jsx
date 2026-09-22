@@ -71,7 +71,7 @@ export default function DesignStudioModal({
   const [showInstructions, setShowInstructions] = useState(false);
   const [resetModelView, setResetModelView] = useState(null);
   const [mobilePanel, setMobilePanel] = useState("controls");
-  const [mobilePanelHeight, setMobilePanelHeight] = useState(250);
+  const [mobilePanelHeight, setMobilePanelHeight] = useState(260);
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.matchMedia("(max-width: 1023px)").matches : false);
   const [textSurface, setTextSurface] = useState(initialTextSurface);
   const [textSelected, setTextSelected] = useState(false);
@@ -207,10 +207,11 @@ export default function DesignStudioModal({
     event.stopPropagation();
     const startY = event.clientY;
     const startHeight = mobilePanelHeight;
+    const maxHeight = Math.min(Math.max(window.innerHeight * 0.5, 280), window.innerHeight - 80);
 
     const move = (moveEvent) => {
       const delta = startY - moveEvent.clientY;
-      const nextHeight = Math.min(Math.max(startHeight + delta, 180), window.innerHeight * 0.7);
+      const nextHeight = Math.min(Math.max(startHeight - delta, 180), maxHeight);
       setMobilePanelHeight(nextHeight);
     };
 
@@ -405,7 +406,7 @@ export default function DesignStudioModal({
                   right: 0,
                   bottom: 0,
                   height: `${mobilePanelHeight}px`,
-                  maxHeight: "70vh",
+                  maxHeight: `${Math.min(Math.max(window.innerHeight * 0.5, 280), window.innerHeight - 80)}px`,
                   borderRadius: "1rem 1rem 0 0",
                   zIndex: 40,
                   boxShadow: "0 -10px 30px rgba(15, 23, 42, 0.45)",
