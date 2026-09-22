@@ -12,6 +12,11 @@ import {
 const cleanText = (value, max) => String(value || "").trim().slice(0, max);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const normalizeVector = (value) => {
+  if (!Array.isArray(value) || value.length !== 3 || value.some((item) => !Number.isFinite(Number(item)))) return null;
+  return value.map((item) => Number(item));
+};
+
 const normalizeCustomization = (customization, product) => {
   if (!customization || typeof customization !== "object") return {};
   const allowedColors = new Set((Array.isArray(product?.colors) ? product.colors : []).map((color) => String(color).trim()));
@@ -35,6 +40,43 @@ const normalizeCustomization = (customization, product) => {
 
   const engravingType = String(customization.engravingType || "").trim();
   if (["raised", "engraved"].includes(engravingType)) next.engravingType = engravingType;
+
+  const designLayers = Array.isArray(customization.designLayers)
+    ? customization.designLayers.slice(0, 30).map((layer) => {
+      const sticker = layer?.sticker && typeof layer.sticker === "object" ? layer.sticker : {};
+      const normalizedLayer = {
+        id: cleanText(layer?.id, 100),
+        x: Number(layer?.x),
+        y: Number(layer?.y),
+        scale: Number(layer?.scale),
+        rotation: Number(layer?.rotation),
+        opacity: Number(layer?.opacity),
+        sticker: {
+          id: cleanText(sticker.id, 80),
+          label: cleanText(sticker.label, 100),
+        },
+      };
+      const surface = layer?.surface;
+      if (surface && typeof surface === "object") {
+        const position = normalizeVector(surface.position);
+        const normal = normalizeVector(surface.normal);
+        if (position && normal) normalizedLayer.surface = { position, normal };
+      }
+      return normalizedLayer;
+    }).filter((layer) => layer.id && layer.sticker.id)
+    : [];
+  if (designLayers.length) next.designLayers = designLayers;
+
+  const textSurface = customization.textSurface;
+  if (textSurface && typeof textSurface === "object") {
+    const position = normalizeVector(textSurface.position);
+    const normal = normalizeVector(textSurface.normal);
+    if (position && normal) next.textSurface = { position, normal };
+  }
+  const textScale = Number(customization.textScale);
+  if (Number.isFinite(textScale) && textScale >= 0.5 && textScale <= 2.5 && textScale !== 1) next.textScale = textScale;
+  const textRotation = Number(customization.textRotation);
+  if (Number.isFinite(textRotation) && textRotation >= -180 && textRotation <= 180 && textRotation !== 0) next.textRotation = textRotation;
 
   return next;
 };

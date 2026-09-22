@@ -66,7 +66,18 @@ export default function ProductDetail() {
 
   const handleAdd = () => {
     const customization = product.customizable
-      ? { name: name.trim(), color, font, sticker, engravingType, message: includeMessage ? message || undefined : undefined, designLayers: savedDesign }
+      ? {
+        name: name.trim(),
+        color,
+        font,
+        sticker,
+        engravingType,
+        message: includeMessage ? message || undefined : undefined,
+        designLayers: savedDesign,
+        textSurface,
+        textScale,
+        textRotation,
+      }
       : {};
     addItem({
       key: product.id + JSON.stringify(customization),

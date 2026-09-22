@@ -117,10 +117,26 @@ export default function Admin() {
                   {o.items && Array.isArray(o.items) && (
                     <div className="mt-2 text-xs text-muted-foreground">
                       {o.items.map((item, index) => (
-                        <div key={`${o.id}-${index}`}>
-                          {item.name || "Sản phẩm"} · qty {item.quantity || 1}
-                          {item.customization?.name && ` · khắc: ${item.customization.name}`}
-                          {item.customization?.message && ` · lời chúc: ${item.customization.message}`}
+                        <div key={`${o.id}-${index}`} className="rounded-lg border border-border/70 bg-background/40 p-3">
+                          <div className="font-medium text-foreground">{item.name || "Sản phẩm"} · qty {item.quantity || 1}</div>
+                          {item.customization?.name && <div className="mt-1">Khắc tên: {item.customization.name}</div>}
+                          {item.customization?.message && <div className="mt-1 rounded-md bg-primary/5 px-2 py-1 italic text-foreground">Lời chúc: “{item.customization.message}”</div>}
+                          {(item.customization?.designLayers?.length > 0 || item.customization?.textSurface || item.customization?.textScale !== undefined || item.customization?.textRotation !== undefined) && (
+                            <details className="mt-2 rounded-md border border-border/70 p-2">
+                              <summary className="cursor-pointer font-medium text-foreground">Thiết kế riêng ({item.customization.designLayers.length} lớp)</summary>
+                              <div className="mt-2 space-y-1 pl-2">
+                                {item.customization.designLayers.map((layer, layerIndex) => (
+                                  <div key={`${o.id}-${index}-layer-${layerIndex}`}>
+                                    {layer.sticker?.label || layer.sticker?.id || "Sticker"}
+                                    {Number.isFinite(layer.rotation) && ` · xoay ${Math.round(layer.rotation)}°`}
+                                  </div>
+                                ))}
+                                {(item.customization.textSurface || item.customization.textScale || item.customization.textRotation) && (
+                                  <div className="text-foreground/80">Vị trí chữ: đã tùy chỉnh{item.customization.textScale ? ` · tỷ lệ ${item.customization.textScale}` : ""}{item.customization.textRotation ? ` · xoay ${item.customization.textRotation}°` : ""}</div>
+                                )}
+                              </div>
+                            </details>
+                          )}
                         </div>
                       ))}
                     </div>
