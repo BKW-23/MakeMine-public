@@ -50,6 +50,7 @@ export default function DesignStudioModal({
   font,
   engravingType,
   includeMessage,
+  showGreetingGenerator = false,
   initialTextSurface = null,
   initialTextScale = 1,
   initialTextRotation = 0,
@@ -382,7 +383,21 @@ export default function DesignStudioModal({
                 />
                 Khắc cả lời chúc
               </label>
-              <GreetingGenerator productName={product.name} onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage, includeMessage: true })} />
+              <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-900/60 p-3 text-xs text-slate-300">
+                <span>
+                  <span className="block font-medium text-slate-100">AI gợi ý lời chúc</span>
+                  <span className="mt-0.5 block text-[11px] text-slate-400">Bật để tham khảo rồi chỉnh sửa theo ý bạn.</span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={showGreetingGenerator}
+                  onChange={(event) => onTextChange?.({ showGreetingGenerator: event.target.checked })}
+                  className="h-4 w-4 shrink-0 accent-pink-500"
+                />
+              </label>
+              {showGreetingGenerator && (
+                <GreetingGenerator productName={product.name} onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage, includeMessage: true })} />
+              )}
               <div className="flex flex-wrap gap-1.5">
                 {product.fonts?.length ? product.fonts.map((item) => (
                   <button

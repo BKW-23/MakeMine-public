@@ -31,6 +31,7 @@ export default function ProductDetail() {
   const [added, setAdded] = useState(false);
   const [message, setMessage] = useState("");
   const [includeMessage, setIncludeMessage] = useState(false);
+  const [useAiGreeting, setUseAiGreeting] = useState(false);
   const [textSurface, setTextSurface] = useState(null);
   const [textScale, setTextScale] = useState(1);
   const [textRotation, setTextRotation] = useState(0);
@@ -257,10 +258,19 @@ export default function ProductDetail() {
                 <input type="checkbox" checked={includeMessage} onChange={(event) => setIncludeMessage(event.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
                 Khắc cả lời chúc lên sản phẩm
               </label>
-              <GreetingGenerator
-                productName={product.name}
-                onConfirm={(nextMessage) => { setMessage(nextMessage); setIncludeMessage(true); }}
-              />
+              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3 text-xs">
+                <span>
+                  <span className="block font-medium text-foreground">AI gợi ý lời chúc</span>
+                  <span className="mt-0.5 block text-muted-foreground">Bật khi bạn muốn tham khảo và biến tấu lời chúc.</span>
+                </span>
+                <input type="checkbox" checked={useAiGreeting} onChange={(event) => setUseAiGreeting(event.target.checked)} className="h-4 w-4 shrink-0 accent-[hsl(var(--primary))]" />
+              </label>
+              {useAiGreeting && (
+                <GreetingGenerator
+                  productName={product.name}
+                  onConfirm={(nextMessage) => { setMessage(nextMessage); setIncludeMessage(true); }}
+                />
+              )}
             </div>
           )}
 
@@ -318,6 +328,7 @@ export default function ProductDetail() {
           font={font}
           engravingType={engravingType}
           includeMessage={includeMessage}
+          showGreetingGenerator={useAiGreeting}
           initialTextSurface={textSurface}
           initialTextScale={textScale}
           initialTextRotation={textRotation}
@@ -329,6 +340,7 @@ export default function ProductDetail() {
             if (changes.font !== undefined) setFont(changes.font);
             if (changes.engravingType !== undefined) setEngravingType(changes.engravingType);
             if (changes.includeMessage !== undefined) setIncludeMessage(changes.includeMessage);
+            if (changes.showGreetingGenerator !== undefined) setUseAiGreeting(changes.showGreetingGenerator);
             if (changes.textSurface !== undefined) setTextSurface(changes.textSurface);
             if (changes.textScale !== undefined) setTextScale(changes.textScale);
             if (changes.textRotation !== undefined) setTextRotation(changes.textRotation);
