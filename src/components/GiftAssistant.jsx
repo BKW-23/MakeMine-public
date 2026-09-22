@@ -100,7 +100,7 @@ export default function GiftAssistant() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <div
             ref={panelRef}
-            className="relative h-full w-full max-w-md glass border-l border-border shadow-2xl flex flex-col"
+            className={`relative h-full w-full glass border-l border-border shadow-2xl flex flex-col transition-[max-width] duration-300 ${expandedSuggestion ? "lg:max-w-2xl" : "max-w-md"}`}
           >
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="flex items-center gap-2">
@@ -212,7 +212,7 @@ export default function GiftAssistant() {
                             event.currentTarget.click();
                           }
                         }}
-                        className={`flex cursor-pointer gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-primary/40 ${isExpanded ? "border-primary/50 bg-primary/5 shadow-md" : ""}`}
+                        className={`flex cursor-pointer gap-3 rounded-xl border bg-card p-3 transition-all hover:border-primary/40 ${isExpanded ? "border-primary shadow-[0_12px_32px_-16px_hsl(var(--primary)/0.7)] ring-2 ring-primary/20" : "border-border"}`}
                       >
                         <div className={`${isExpanded ? "h-24 w-24" : "h-20 w-20"} shrink-0 overflow-hidden rounded-lg bg-secondary transition-all`}>
                           {imageFor(p) && <img src={imageFor(p)} alt={p.name} className="h-full w-full object-cover" />}
