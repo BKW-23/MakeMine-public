@@ -41,6 +41,17 @@ export default function ProductDetail() {
   const [expandedSticker, setExpandedSticker] = useState(null);
   const [studioOpen, setStudioOpen] = useState(false);
   const [savedDesign, setSavedDesign] = useState([]);
+  const [isDarkTheme, setIsDarkTheme] = useState(() => typeof document !== "undefined" && document.documentElement.dataset.theme === "dark");
+
+  useEffect(() => {
+    const syncTheme = () => setIsDarkTheme(document.documentElement.dataset.theme === "dark");
+    syncTheme();
+
+    const observer = new MutationObserver(syncTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -272,6 +283,7 @@ export default function ProductDetail() {
                   productName={product.name}
                   initialForm={greetingForm}
                   onFormChange={setGreetingForm}
+                  theme={isDarkTheme ? "dark" : "light"}
                   onConfirm={(nextMessage) => {
                     setMessage(nextMessage);
                     setIncludeMessage(true);
