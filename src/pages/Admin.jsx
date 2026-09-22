@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BKW } from "@/api/bkwClient";
-import { Plus, Loader2, Package, ClipboardList, Pencil, Search, ExternalLink, Activity, CheckCircle2, CircleAlert } from "lucide-react";
+import { Plus, Loader2, Package, ClipboardList, Pencil, Search, ExternalLink, Activity, CheckCircle2, CircleAlert, ChevronDown } from "lucide-react";
 import { imageFor, formatVND, CATEGORIES } from "@/lib/productImages";
 
 const STATUS = ["pending", "paid", "shipped", "delivered", "cancelled"];
@@ -19,6 +19,7 @@ export default function Admin() {
   const [apiStatus, setApiStatus] = useState(null);
   const [apiLoading, setApiLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -129,42 +130,86 @@ export default function Admin() {
             <div key={o.id} className="rounded-xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="font-mono text-xs text-muted-foreground">{o.id}</div>
+                  <div className="font-mono text-xs text-muted-foreground">Mã đơn: {o.order_code || o.id}</div>
                   <div className="font-medium">{o.customer_name} · {o.customer_phone}</div>
                   <div className="text-xs text-muted-foreground">{o.address}</div>
-                  {o.items && Array.isArray(o.items) && (
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      {o.items.map((item, index) => (
-                        <div key={`${o.id}-${index}`} className="rounded-lg border border-border/70 bg-background/40 p-3">
-                          <div className="font-medium text-foreground">{item.name || "Sản phẩm"} · qty {item.quantity || 1}</div>
-                          {item.customization?.name && <div className="mt-1">Khắc tên: {item.customization.name}</div>}
-                          {item.customization?.message && <div className="mt-1 rounded-md bg-primary/5 px-2 py-1 italic text-foreground">Lời chúc: “{item.customization.message}”</div>}
-                          {(item.customization?.designLayers?.length > 0 || item.customization?.textSurface || item.customization?.textScale !== undefined || item.customization?.textRotation !== undefined) && (
-                            <details className="mt-2 rounded-md border border-border/70 p-2">
-                              <summary className="cursor-pointer font-medium text-foreground">Thiết kế riêng ({item.customization.designLayers.length} lớp)</summary>
-                              <div className="mt-2 space-y-1 pl-2">
-                                {item.customization.designLayers.map((layer, layerIndex) => (
-                                  <div key={`${o.id}-${index}-layer-${layerIndex}`}>
-                                    {layer.sticker?.label || layer.sticker?.id || "Sticker"}
-                                    {Number.isFinite(layer.rotation) && ` · xoay ${Math.round(layer.rotation)}°`}
-                                  </div>
-                                ))}
-                                {(item.customization.textSurface || item.customization.textScale || item.customization.textRotation) && (
-                                  <div className="text-foreground/80">Vị trí chữ: đã tùy chỉnh{item.customization.textScale ? ` · tỷ lệ ${item.customization.textScale}` : ""}{item.customization.textRotation ? ` · xoay ${item.customization.textRotation}°` : ""}</div>
-                                )}
-                              </div>
-                            </details>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
                 <div className="text-right">
                   <div className="font-semibold text-primary">{formatVND(o.total)}</div>
                   <div className="text-xs text-muted-foreground">{o.items?.length || 0} sản phẩm</div>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setExpandedOrderId((current) => current === o.id ? null : o.id)}
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-primary"
+                aria-expanded={expandedOrderId === o.id}
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${expandedOrderId === o.id ? "rotate-180" : ""}`} />
+                {expandedOrderId === o.id ? "Ẩn chi tiết" : "Xem chi tiết đơn hàng"}
+              </button>
+              {expandedOrderId === o.id && (
+                <div className="mt-4 space-y-4 border-t border-border pt-4 text-sm">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <Info label="Mã đơn" value={o.order_code || o.id} mono />
+                    <Info label="Ngày đặt" value={o.created_at ? new Date(o.created_at).toLocaleString("vi-VN") : "-"} />
+                    <Info label="Thanh toán" value={o.payment_status || "pending"} />
+                    <Info label="Đã xác nhận preview" value={o.preview_confirmed ? "Có" : "Chưa"} />
+                    <Info label="Email" value={o.customer_email || "Không có"} />
+                    <Info label="Phí ship" value={formatVND(o.shipping_fee || 0)} />
+                    <Info label="Giảm giá" value={formatVND(o.discount || 0)} />
+                    <Info label="Phí cá nhân hóa" value={formatVND(o.customization_fee || 0)} />
+                  </div>
+                  <div className="rounded-lg border border-border/70 bg-background/40 p-3">
+                    <div className="font-semibold">Địa chỉ giao hàng</div>
+                    <div className="mt-1 text-muted-foreground">{o.address || "Chưa có"}</div>
+                  </div>
+                  {o.order_notes && <div className="rounded-lg border border-border/70 bg-primary/5 p-3"><span className="font-semibold">Ghi chú đơn:</span> {o.order_notes}</div>}
+                  <div>
+                    <div className="mb-2 font-semibold">Sản phẩm và cá nhân hóa</div>
+                    <div className="space-y-3">
+                      {(Array.isArray(o.items) ? o.items : []).map((item, index) => {
+                        const customization = item.customization || {};
+                        const layers = Array.isArray(customization.designLayers) ? customization.designLayers : [];
+                        const hasDesign = layers.length > 0 || customization.textSurface || customization.textScale !== undefined || customization.textRotation !== undefined;
+                        return (
+                          <div key={`${o.id}-detail-${index}`} className="rounded-lg border border-border/70 bg-background/40 p-3">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                              <div>
+                                <div className="font-semibold">{item.name || "Sản phẩm"}</div>
+                                <div className="text-xs text-muted-foreground">Số lượng: {item.quantity || 1} · Đơn giá: {formatVND(item.unit_price || 0)}</div>
+                              </div>
+                              <div className="font-semibold text-primary">{formatVND((item.unit_price || 0) * (item.quantity || 1))}</div>
+                            </div>
+                            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                              <Info label="Tên khắc" value={customization.name || "Không khắc tên"} />
+                              <Info label="Màu chữ" value={customization.color || "Mặc định"} />
+                              <Info label="Font chữ" value={customization.font || "Mặc định"} />
+                              <Info label="Kiểu khắc" value={customization.engravingType === "raised" ? "Khắc nổi" : customization.engravingType === "engraved" ? "Khắc chìm" : "Mặc định"} />
+                              <Info label="Sticker" value={customization.sticker && customization.sticker !== "none" ? customization.sticker : "Không có"} />
+                              <Info label="Lời chúc" value={customization.message || "Không có"} />
+                            </div>
+                            {hasDesign && (
+                              <div className="mt-3 rounded-md border border-primary/20 bg-primary/5 p-3">
+                                <div className="font-semibold text-primary">Thiết kế riêng</div>
+                                {layers.length > 0 ? (
+                                  <div className="mt-2 space-y-1 text-xs">
+                                    {layers.map((layer, layerIndex) => <div key={`${o.id}-${index}-layer-${layerIndex}`}>Lớp {layerIndex + 1}: {layer.sticker?.label || layer.sticker?.id || "Sticker"} · vị trí {Math.round(layer.x || 0)}%, {Math.round(layer.y || 0)}% · tỷ lệ {layer.scale || 1} · xoay {Math.round(layer.rotation || 0)}° · opacity {layer.opacity ?? 100}%</div>)}
+                                  </div>
+                                ) : <div className="mt-1 text-xs text-muted-foreground">Không có sticker, chỉ có tùy chỉnh chữ.</div>}
+                                <div className="mt-2 text-xs text-muted-foreground">Bề mặt chữ: {customization.textSurface ? "Đã chọn trên mẫu 3D" : "Mặc định"} · tỷ lệ {customization.textScale || 1} · xoay {customization.textRotation || 0}°</div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {Array.isArray(o.status_history) && o.status_history.length > 0 && (
+                    <div className="rounded-lg border border-border/70 p-3"><div className="font-semibold">Lịch sử trạng thái</div><div className="mt-2 space-y-1 text-xs text-muted-foreground">{o.status_history.map((entry, index) => <div key={`${o.id}-history-${index}`}>{entry.status || "-"} · {entry.updated_at ? new Date(entry.updated_at).toLocaleString("vi-VN") : "-"}</div>)}</div></div>
+                  )}
+                </div>
+              )}
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {STATUS.map((s) => (
                   <button
@@ -368,4 +413,8 @@ function ProductForm({ onSaved, editingId, onCancel }) {
       </div>
     </form>
   );
+}
+
+function Info({ label, value, mono = false }) {
+  return <div className="rounded-md border border-border/60 bg-background/30 p-2"><div className="text-[11px] text-muted-foreground">{label}</div><div className={`mt-0.5 break-words font-medium ${mono ? "font-mono text-xs" : ""}`}>{value}</div></div>;
 }
