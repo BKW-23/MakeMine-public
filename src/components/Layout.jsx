@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { History, LogIn, LogOut, ShoppingBag, Menu, MoonStar, SunMedium, X } from "lucide-react";
+import { History, LogIn, LogOut, ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import GiftAssistant from "@/components/GiftAssistant";
 import { useAuth } from "@/lib/AuthContext";
@@ -90,7 +90,7 @@ export default function Layout() {
               </div>
             </Link>
 
-            <nav ref={navRef} className="nav-shell hidden md:flex items-center gap-1 relative">
+            <nav ref={navRef} className="nav-shell hidden lg:flex items-center gap-1 relative">
               <span className="nav-pill" aria-hidden="true" />
               {NAV.map((n) => {
                 const active = location.pathname === n.to || (n.to !== "/" && location.pathname.startsWith(n.to));
@@ -212,7 +212,7 @@ export default function Layout() {
                 </Link>
               )}
               <button
-                className="md:hidden grid h-10 w-10 place-items-center rounded-lg bg-secondary"
+                className="lg:hidden grid h-10 w-10 place-items-center rounded-lg bg-secondary"
                 onClick={() => setOpen((v) => !v)}
                 aria-label="Menu"
               >
@@ -222,7 +222,7 @@ export default function Layout() {
           </div>
         </div>
         {open && (
-          <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1">
+          <nav className="lg:hidden border-t border-border px-4 py-3 flex flex-col gap-1">
             {NAV.map((n) => (
               <Link
                 key={n.to}

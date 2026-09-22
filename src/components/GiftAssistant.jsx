@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Sparkles, X, Send, Loader2, Wand2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { imageFor, formatVND } from "@/lib/productImages";
@@ -20,7 +20,9 @@ export default function GiftAssistant() {
   const [results, setResults] = useState([]);
   const [error, setError] = useState("");
   const [products, setProducts] = useState({});
+  const [expandedSuggestion, setExpandedSuggestion] = useState(null);
   const panelRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handler = () => setOpen(true);
@@ -32,6 +34,15 @@ export default function GiftAssistant() {
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!expandedSuggestion) return undefined;
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest?.("[data-gift-suggestion]")) setExpandedSuggestion(null);
+    };
+    document.addEventListener("pointerdown", handleOutsideClick);
+    return () => document.removeEventListener("pointerdown", handleOutsideClick);
+  }, [expandedSuggestion]);
 
   const submit = async (e, preset) => {
     if (e) e.preventDefault();
@@ -45,6 +56,7 @@ export default function GiftAssistant() {
     setLoading(true);
     setError("");
     setResults([]);
+    setExpandedSuggestion(null);
     try {
       const res = await base44.functions.invoke("giftSuggestion", {
         occasion: o,
@@ -179,23 +191,39 @@ export default function GiftAssistant() {
                   {results.map((s, i) => {
                     const p = products[s.product_id];
                     if (!p) return null;
+                    const isExpanded = expandedSuggestion === s.product_id;
                     return (
-                      <Link
+                      <div
                         key={s.product_id}
-                        to={`/san-pham/${p.slug || p.id}`}
-                        onClick={() => setOpen(false)}
-                        className="flex gap-3 rounded-xl border border-border bg-card p-3 hover:border-primary/40 transition-colors"
+                        data-gift-suggestion
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          if (isExpanded) {
+                            setOpen(false);
+                            navigate(`/san-pham/${p.slug || p.id}`);
+                          } else {
+                            setExpandedSuggestion(s.product_id);
+                          }
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            event.currentTarget.click();
+                          }
+                        }}
+                        className={`flex cursor-pointer gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-primary/40 ${isExpanded ? "border-primary/50 bg-primary/5 shadow-md" : ""}`}
                       >
-                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-secondary">
+                        <div className={`${isExpanded ? "h-24 w-24" : "h-20 w-20"} shrink-0 overflow-hidden rounded-lg bg-secondary transition-all`}>
                           {imageFor(p) && <img src={imageFor(p)} alt={p.name} className="h-full w-full object-cover" />}
                         </div>
                         <div className="flex flex-1 flex-col">
                           <div className="text-sm font-medium leading-tight">{p.name}</div>
                           <div className="text-xs text-primary font-semibold mt-0.5">{formatVND(p.base_price)}</div>
-                          <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{s.ly_do}</div>
-                          <span className="mt-1 text-xs text-primary">Xem sản phẩm →</span>
+                          <div className={`text-xs text-muted-foreground mt-1 ${isExpanded ? "leading-5" : "line-clamp-2"}`}>{s.ly_do}</div>
+                          <span className="mt-1 text-xs text-primary">{isExpanded ? "Mở sản phẩm →" : "Chạm để xem rõ hơn"}</span>
                         </div>
-                      </Link>
+                      </div>
                     );
                   })}
                 </div>

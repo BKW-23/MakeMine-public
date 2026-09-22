@@ -87,9 +87,12 @@
   html {
     scroll-behavior: smooth;
     transition: background-color 0.7s ease, color 0.7s ease;
+    overflow-x: hidden;
   }
   body {
     @apply bg-background text-foreground font-body antialiased;
+    min-width: 0;
+    overflow-x: hidden;
     background-image:
       radial-gradient(circle at 15% 15%, rgba(105, 168, 255, 0.22), transparent 23%),
       radial-gradient(circle at 75% 18%, rgba(118, 215, 255, 0.18), transparent 20%),
@@ -258,7 +261,6 @@
   }
   .nav-shell {
     position: relative;
-    display: flex;
     flex-wrap: nowrap;
     white-space: nowrap;
     align-items: center;
@@ -514,6 +516,40 @@
   .crater-1 { top: 8px; left: 10px; width: 9px; height: 9px; }
   .crater-2 { top: 19px; left: 7px; width: 7px; height: 7px; }
   .crater-3 { top: 17px; left: 21px; width: 10px; height: 10px; }
+  @media (max-width: 639px) {
+    .theme-toggle-button {
+      width: 72px;
+      height: 40px;
+    }
+    .theme-toggle-sun-glow {
+      left: 18px;
+      width: 64px;
+      height: 64px;
+    }
+    .theme-cloud-svg {
+      width: 54px;
+      height: 30px;
+    }
+    .theme-toggle-knob {
+      top: 3px;
+      left: 3px;
+      width: 30px;
+      height: 30px;
+    }
+    .theme-toggle-button.is-dark .theme-toggle-knob {
+      transform: translateX(34px);
+    }
+    .theme-star-svg {
+      width: 8px;
+      height: 8px;
+    }
+    .star-svg-a { top: 8px; left: 12px; }
+    .star-svg-b { top: 24px; left: 23px; }
+    .theme-shooting-star {
+      top: 7px;
+      right: 13px;
+    }
+  }
   .assistant-hero-card {
     position: relative;
     overflow: hidden;
