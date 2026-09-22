@@ -308,4 +308,10 @@ const auth = {
   consumeAuthCallback,
 };
 
-export const base44 = { entities: { Product: products, Order: orders }, functions, auth };
+const adminApiStatus = {
+  get() {
+    return apiRequest("/api/admin/api-status");
+  },
+};
+
+export const base44 = { entities: { Product: products, Order: orders }, functions, auth, adminApiStatus };

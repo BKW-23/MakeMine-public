@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Loader2, Package, ClipboardList, Pencil, Search, ExternalLink } from "lucide-react";
+import { Plus, Loader2, Package, ClipboardList, Pencil, Search, ExternalLink, Activity, CheckCircle2, CircleAlert } from "lucide-react";
 import { imageFor, formatVND, CATEGORIES } from "@/lib/productImages";
 
 const STATUS = ["pending", "paid", "shipped", "delivered", "cancelled"];
@@ -16,6 +16,9 @@ export default function Admin() {
   const [researchResults, setResearchResults] = useState([]);
   const [researchQuery, setResearchQuery] = useState("");
   const [researchError, setResearchError] = useState("");
+  const [apiStatus, setApiStatus] = useState(null);
+  const [apiLoading, setApiLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const load = () => {
     setLoading(true);
@@ -60,6 +63,18 @@ export default function Admin() {
     }
   };
 
+  const loadApiStatus = async () => {
+    setApiLoading(true);
+    setApiError("");
+    try {
+      setApiStatus(await base44.adminApiStatus.get());
+    } catch (error) {
+      setApiError(error.message || "Không thể kiểm tra API.");
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <h1 className="font-display text-3xl font-bold mb-6">Quản trị</h1>
@@ -72,6 +87,9 @@ export default function Admin() {
         </button>
         <button onClick={() => setTab("research")} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${tab === "research" ? "bg-primary text-primary-foreground" : "border border-border hover:border-primary/40"}`}>
           <Search className="h-4 w-4" /> Nghiên cứu
+        </button>
+        <button onClick={() => { setTab("api"); loadApiStatus(); }} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${tab === "api" ? "bg-primary text-primary-foreground" : "border border-border hover:border-primary/40"}`}>
+          <Activity className="h-4 w-4" /> API
         </button>
       </div>
 
@@ -161,7 +179,7 @@ export default function Admin() {
             </div>
           ))}
         </div>
-      ) : (
+      ) : tab === "research" ? (
         <section className="space-y-4">
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
             <h2 className="font-display text-2xl font-bold">Nghiên cứu giá đối thủ</h2>
@@ -190,6 +208,45 @@ export default function Admin() {
           ) : !researchLoading && !researchError ? (
             <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">Chưa có báo cáo. Chạy nghiên cứu để lấy dữ liệu tham khảo.</div>
           ) : null}
+        </section>
+      ) : (
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-5">
+            <div>
+              <h2 className="font-display text-2xl font-bold">Trạng thái API</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Kiểm tra API nào đang được cấu hình và dùng cho chức năng nào.</p>
+            </div>
+            <button onClick={loadApiStatus} disabled={apiLoading} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold disabled:opacity-60">
+              <Activity className={`h-4 w-4 ${apiLoading ? "animate-pulse" : ""}`} /> Kiểm tra lại
+            </button>
+          </div>
+          {apiError && <div className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">{apiError}</div>}
+          {!apiStatus && !apiLoading && !apiError && <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">Bấm kiểm tra để xem trạng thái các API.</div>}
+          {apiStatus && (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {apiStatus.services.map((service) => {
+                  const isReady = service.status === "configured";
+                  return (
+                    <div key={service.id} className="rounded-xl border border-border bg-card p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          {isReady ? <CheckCircle2 className="h-5 w-5 text-emerald-500" /> : <CircleAlert className="h-5 w-5 text-amber-500" />}
+                          <h3 className="font-semibold">{service.name}</h3>
+                        </div>
+                        <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${isReady ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"}`}>
+                          {service.status === "configured" ? "Đã cấu hình" : service.status === "optional" ? "Tuỳ chọn" : "Thiếu"}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">{service.purpose}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">API key chỉ được đọc phía server.</p>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">Cập nhật: {new Date(apiStatus.checked_at).toLocaleString("vi-VN")}. {apiStatus.note}</p>
+            </>
+          )}
         </section>
       )}
     </div>
