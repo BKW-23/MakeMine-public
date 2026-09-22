@@ -71,6 +71,7 @@ export default function DesignStudioModal({
   const [showInstructions, setShowInstructions] = useState(false);
   const [resetModelView, setResetModelView] = useState(null);
   const [mobilePanel, setMobilePanel] = useState("controls");
+  const [mobilePanelHeight, setMobilePanelHeight] = useState(250);
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.matchMedia("(max-width: 1023px)").matches : false);
   const [textSurface, setTextSurface] = useState(initialTextSurface);
   const [textSelected, setTextSelected] = useState(false);
@@ -196,6 +197,28 @@ export default function DesignStudioModal({
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", stop);
     };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
+  };
+
+  const startMobilePanelDrag = (event) => {
+    if (!isMobile || mobilePanel !== "controls") return;
+    event.preventDefault();
+    event.stopPropagation();
+    const startY = event.clientY;
+    const startHeight = mobilePanelHeight;
+
+    const move = (moveEvent) => {
+      const delta = startY - moveEvent.clientY;
+      const nextHeight = Math.min(Math.max(startHeight + delta, 180), window.innerHeight * 0.7);
+      setMobilePanelHeight(nextHeight);
+    };
+
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+    };
+
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", stop);
   };
@@ -372,10 +395,21 @@ export default function DesignStudioModal({
           )}
         </main>
 
-        <aside className={`z-30 flex min-h-0 w-full shrink-0 flex-col overflow-y-auto border-t border-slate-800 bg-slate-950 lg:relative lg:z-auto lg:max-h-none lg:w-72 lg:border-l lg:border-t-0 ${mobilePanel === "controls" ? "max-h-[42vh] lg:static lg:w-72" : "hidden lg:flex"}`}>
+        <aside
+          className={`z-30 flex min-h-0 w-full shrink-0 flex-col overflow-y-auto border-t border-slate-800 bg-slate-950 lg:relative lg:z-auto lg:max-h-none lg:w-72 lg:border-l lg:border-t-0 ${mobilePanel === "controls" ? "lg:static lg:w-72" : "hidden lg:flex"}`}
+          style={isMobile && mobilePanel === "controls" ? { height: `${mobilePanelHeight}px`, maxHeight: "70vh" } : undefined}
+        >
           <div className="flex items-center justify-between gap-2 border-b border-slate-800 p-3 text-xs font-semibold uppercase tracking-wider text-slate-300 sm:p-4">
-            <span className="inline-flex items-center gap-2"><SlidersHorizontal className="h-4 w-4 text-pink-400" /> Tùy chỉnh sticker</span>
-            <button type="button" onClick={() => setMobilePanel(null)} className="rounded-md px-2 py-1 text-[10px] normal-case tracking-normal text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden">
+            <div
+              className="flex flex-1 cursor-grab items-center justify-center py-1 active:cursor-grabbing lg:hidden"
+              onPointerDown={startMobilePanelDrag}
+              aria-label="Kéo để thay đổi chiều cao tùy chỉnh"
+              title="Kéo để mở rộng/thu gọn"
+            >
+              <span className="block h-1.5 w-12 rounded-full bg-slate-600" />
+            </div>
+            <span className="hidden items-center gap-2 lg:inline-flex"><SlidersHorizontal className="h-4 w-4 text-pink-400" /> Tùy chỉnh sticker</span>
+            <button type="button" onClick={() => setMobilePanel(null)} className="hidden rounded-md px-2 py-1 text-[10px] normal-case tracking-normal text-slate-400 hover:bg-slate-800 hover:text-white lg:inline-flex">
               Ẩn
             </button>
           </div>
