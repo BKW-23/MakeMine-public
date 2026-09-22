@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Copy, HelpCircle, RotateCcw, SlidersHorizontal, Sparkles, Trash2, X } from "lucide-react";
 import { STICKERS } from "@/lib/stickers";
 import ModelPreview from "@/components/ModelPreview";
@@ -51,6 +51,8 @@ export default function DesignStudioModal({
   engravingType,
   includeMessage,
   showGreetingGenerator = false,
+  greetingForm = {},
+  onGreetingFormChange,
   initialTextSurface = null,
   initialTextScale = 1,
   initialTextRotation = 0,
@@ -69,6 +71,7 @@ export default function DesignStudioModal({
   const [showInstructions, setShowInstructions] = useState(false);
   const [resetModelView, setResetModelView] = useState(null);
   const [mobilePanel, setMobilePanel] = useState("controls");
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.matchMedia("(max-width: 1023px)").matches : false);
   const [textSurface, setTextSurface] = useState(initialTextSurface);
   const [textSelected, setTextSelected] = useState(false);
   const [textScale, setTextScale] = useState(initialTextScale);
@@ -76,6 +79,18 @@ export default function DesignStudioModal({
 
   const selected = layers.find((layer) => layer.id === selectedId);
   const isModelProduct = product.slug === "guong-cam-tay-lap-lanh";
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+    const handleChange = (event) => setIsMobile(event.matches);
+
+    setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener?.("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener?.("change", handleChange);
+    };
+  }, []);
   const selectLayer = (layerId) => {
     setSelectedId(layerId);
     if (layerId) setMobilePanel("controls");
@@ -238,7 +253,10 @@ export default function DesignStudioModal({
           </div>
         </aside>
 
-        <main className="checkerboard-bg relative flex min-h-[min(45vh,460px)] min-w-0 flex-1 items-center justify-center overflow-hidden p-2 sm:min-h-[min(54vh,560px)] sm:p-5 lg:min-h-0" onPointerDown={() => { setSelectedId(null); setTextSelected(false); setMobilePanel(null); }}>
+        <main
+          className="checkerboard-bg relative flex min-h-[min(45vh,460px)] min-w-0 flex-1 items-center justify-center overflow-hidden p-2 sm:min-h-[min(54vh,560px)] sm:p-5 lg:min-h-0"
+          onPointerDown={() => { setSelectedId(null); setTextSelected(false); setMobilePanel(null); }}
+        >
           <div className="relative aspect-square h-auto w-[min(calc(100vw_-_1rem),calc(100%_-_1rem))] max-w-[min(72vh,680px)] overflow-hidden rounded-2xl border border-slate-700/70 bg-white shadow-2xl lg:w-full">
             {isModelProduct ? (
               <div className="absolute inset-0 bg-gradient-to-br from-pink-100 via-white to-purple-100">
@@ -313,15 +331,21 @@ export default function DesignStudioModal({
                   <HelpCircle className="h-4 w-4" /> Cách chỉnh thiết kế
                 </div>
                 {isModelProduct && (
-                  <>
-                    <p>Vuốt bằng 1 ngón để xoay sản phẩm.</p>
-                    <p className="mt-1">Dùng 2 ngón để kéo sản phẩm hoặc chụm/mở để thu phóng.</p>
-                    <p className="mt-1">Bấm “Đưa về chính diện” để trở lại góc nhìn ban đầu.</p>
-                  </>
+                  isMobile ? (
+                    <>
+                      <p>Với điện thoại: dùng 1 ngón tay để xoay; 2 ngón để kéo và zoom sản phẩm.</p>
+                      <p className="mt-1">Bấm “Đưa về chính diện” để quay lại góc nhìn ban đầu.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p>Với máy tính: giữ chuột trái để xoay; chuột phải để di chuyển; cuộn chuột để zoom.</p>
+                      <p className="mt-1">Bấm “Đưa về chính diện” để quay lại góc nhìn ban đầu.</p>
+                    </>
+                  )
                 )}
-                <p>Bấm vào sticker để chọn và hiện khung chỉnh sửa.</p>
+                <p>Chạm vào sticker để chọn; nó sẽ hiện khung chỉnh sửa.</p>
                 <p className="mt-1">Kéo sticker để di chuyển trên sản phẩm.</p>
-                <p className="mt-1">Bấm ra ngoài viền sticker để bỏ chọn.</p>
+                <p className="mt-1">Bấm ra ngoài sticker để bỏ chọn.</p>
                 <p className="mt-1">Dùng bảng bên phải để đổi kích thước, xoay và độ trong suốt.</p>
               </div>
             ) : (
@@ -396,7 +420,13 @@ export default function DesignStudioModal({
                 />
               </label>
               {showGreetingGenerator && (
-                <GreetingGenerator productName={product.name} onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage, includeMessage: true })} />
+                <GreetingGenerator
+                  productName={product.name}
+                  initialForm={greetingForm}
+                  onFormChange={onGreetingFormChange}
+                  theme="dark"
+                  onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage, includeMessage: true })}
+                />
               )}
               <div className="flex flex-wrap gap-1.5">
                 {product.fonts?.length ? product.fonts.map((item) => (
