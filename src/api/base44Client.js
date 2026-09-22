@@ -234,6 +234,8 @@ const functions = {
   invoke(name, payload) {
     const path = name === "giftSuggestion"
       ? "/api/gift-suggestion"
+      : name === "competitorResearch"
+        ? "/api/admin/competitor-research"
       : name === "generatePreview"
         ? "/api/generate-preview"
         : "/api/generate-greeting";
