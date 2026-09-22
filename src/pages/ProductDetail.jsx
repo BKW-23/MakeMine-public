@@ -278,7 +278,7 @@ export default function ProductDetail() {
                 </span>
                 <input type="checkbox" checked={useAiGreeting} onChange={(event) => setUseAiGreeting(event.target.checked)} className="h-4 w-4 shrink-0 accent-[hsl(var(--primary))]" />
               </label>
-              {useAiGreeting && (
+              <div className={useAiGreeting ? "block" : "hidden"}>
                 <GreetingGenerator
                   productName={product.name}
                   initialForm={greetingForm}
@@ -290,7 +290,7 @@ export default function ProductDetail() {
                     setUseAiGreeting(true);
                   }}
                 />
-              )}
+              </div>
             </div>
           )}
 

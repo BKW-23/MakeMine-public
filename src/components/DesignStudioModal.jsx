@@ -419,7 +419,7 @@ export default function DesignStudioModal({
                   className="h-4 w-4 shrink-0 accent-pink-500"
                 />
               </label>
-              {showGreetingGenerator && (
+              <div className={showGreetingGenerator ? "block" : "hidden"}>
                 <GreetingGenerator
                   productName={product.name}
                   initialForm={greetingForm}
@@ -427,7 +427,7 @@ export default function DesignStudioModal({
                   theme="dark"
                   onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage, includeMessage: true })}
                 />
-              )}
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {product.fonts?.length ? product.fonts.map((item) => (
                   <button
