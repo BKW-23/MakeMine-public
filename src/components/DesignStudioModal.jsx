@@ -254,10 +254,10 @@ export default function DesignStudioModal({
         </aside>
 
         <main
-          className="checkerboard-bg relative flex min-h-[min(45vh,460px)] min-w-0 flex-1 items-center justify-center overflow-hidden p-2 sm:min-h-[min(54vh,560px)] sm:p-5 lg:min-h-0"
+          className="checkerboard-bg relative flex min-h-[min(54vh,560px)] min-w-0 flex-1 items-center justify-center overflow-hidden p-2 sm:min-h-[min(60vh,620px)] sm:p-5 lg:min-h-0"
           onPointerDown={() => { setSelectedId(null); setTextSelected(false); setMobilePanel(null); }}
         >
-          <div className="relative aspect-square h-auto w-[min(calc(100vw_-_1rem),calc(100%_-_1rem))] max-w-[min(72vh,680px)] overflow-hidden rounded-2xl border border-slate-700/70 bg-white shadow-2xl lg:w-full">
+          <div className="relative aspect-square h-auto w-[min(90vw,540px)] max-w-[min(78vh,700px)] overflow-hidden rounded-2xl border border-slate-700/70 bg-white shadow-2xl xs:w-[min(84vw,500px)] sm:w-[min(76vw,620px)] lg:w-full">
             {isModelProduct ? (
               <div className="absolute inset-0 bg-gradient-to-br from-pink-100 via-white to-purple-100">
                 <ModelPreview
