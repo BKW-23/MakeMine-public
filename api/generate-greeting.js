@@ -1,4 +1,4 @@
-import { checkRateLimit, getClientIp, json } from "./_supabase.js";
+import { checkRateLimit, getClientIp, json, recordApiUsage } from "./_supabase.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
@@ -29,6 +29,7 @@ Trả JSON dạng {"greetings":["...","...","..."]}.`;
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }),
     });
+    await recordApiUsage("gemini-text", response.ok);
     const data = await response.json();
     if (!response.ok) throw new Error(data.error?.message || "Gemini request failed");
     const parsed = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text || "{}");

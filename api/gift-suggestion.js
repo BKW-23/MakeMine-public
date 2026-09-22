@@ -1,4 +1,4 @@
-import { checkRateLimit, getClientIp, json, supabase } from "./_supabase.js";
+import { checkRateLimit, getClientIp, json, recordApiUsage, supabase } from "./_supabase.js";
 
 const gemini = async (prompt) => {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -15,6 +15,7 @@ const gemini = async (prompt) => {
     }),
   });
   const data = await response.json();
+  await recordApiUsage("gemini-text", response.ok);
   if (!response.ok) throw new Error(data.error?.message || "Gemini request failed");
   return JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text || "{}");
 };

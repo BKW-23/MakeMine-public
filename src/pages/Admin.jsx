@@ -244,6 +244,40 @@ export default function Admin() {
                   );
                 })}
               </div>
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="font-semibold">Usage của app</h3>
+                  <span className="text-xs text-muted-foreground">30 ngày gần nhất</span>
+                </div>
+                {apiStatus.usage?.length ? (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full min-w-[560px] text-left text-sm">
+                      <thead className="text-xs text-muted-foreground">
+                        <tr className="border-b border-border">
+                          <th className="pb-2 font-medium">API</th>
+                          <th className="pb-2 font-medium">Ngày</th>
+                          <th className="pb-2 text-right font-medium">Lượt gọi</th>
+                          <th className="pb-2 text-right font-medium">Lỗi</th>
+                          <th className="pb-2 text-right font-medium">Dùng gần nhất</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {apiStatus.usage.map((entry) => (
+                          <tr key={`${entry.provider}-${entry.usage_date}`} className="border-b border-border/60 last:border-0">
+                            <td className="py-2 font-medium">{entry.provider}</td>
+                            <td className="py-2 text-muted-foreground">{entry.usage_date}</td>
+                            <td className="py-2 text-right">{entry.request_count}</td>
+                            <td className={`py-2 text-right ${entry.error_count > 0 ? "text-destructive" : "text-muted-foreground"}`}>{entry.error_count}</td>
+                            <td className="py-2 text-right text-xs text-muted-foreground">{entry.last_used_at ? new Date(entry.last_used_at).toLocaleString("vi-VN") : "-"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-muted-foreground">Chưa có usage được ghi nhận. Cần chạy migration `004_api_usage.sql` để bắt đầu lưu.</p>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">Cập nhật: {new Date(apiStatus.checked_at).toLocaleString("vi-VN")}. {apiStatus.note}</p>
             </>
           )}

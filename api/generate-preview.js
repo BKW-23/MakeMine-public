@@ -1,4 +1,4 @@
-import { json } from "./_supabase.js";
+import { json, recordApiUsage } from "./_supabase.js";
 
 const clean = (value, max = 120) => String(value || "").trim().slice(0, max);
 
@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       }),
     });
     const data = await response.json();
+    await recordApiUsage("gemini-image", response.ok);
     if (!response.ok) throw new Error(data.error?.message || "Gemini image request failed");
     const parts = data.candidates?.[0]?.content?.parts || [];
     const imagePart = parts.find((part) => part.inlineData?.data);

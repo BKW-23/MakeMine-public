@@ -158,6 +158,14 @@ export const supabase = async (path, options = {}) => {
   return data;
 };
 
+export const recordApiUsage = async (provider, success = true) => {
+  if (!provider) return;
+  await supabase("rpc/increment_api_usage", {
+    method: "POST",
+    body: JSON.stringify({ p_provider: provider, p_success: Boolean(success) }),
+  }).catch(() => {});
+};
+
 export const getBearer = (req) => {
   const value = req.headers.authorization || "";
   return value.startsWith("Bearer ") ? value.slice(7) : "";
