@@ -382,7 +382,7 @@ export default function DesignStudioModal({
                 />
                 Khắc cả lời chúc
               </label>
-              <GreetingGenerator productName={product.name} onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage })} />
+              <GreetingGenerator productName={product.name} onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage, includeMessage: true })} />
               <div className="flex flex-wrap gap-1.5">
                 {product.fonts?.length ? product.fonts.map((item) => (
                   <button

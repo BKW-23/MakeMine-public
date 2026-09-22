@@ -203,6 +203,67 @@ export default function ProductDetail() {
             </div>
           )}
 
+          {product.customizable && (
+            <div className="space-y-4 rounded-2xl border border-border bg-card p-4">
+              <div className="text-sm font-semibold">Khắc chữ</div>
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value.slice(0, 20))}
+                placeholder="Tên cần khắc (tối đa 20 ký tự)"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12"
+              />
+              <div>
+                <div className="mb-2 text-xs font-medium text-muted-foreground">Font chữ</div>
+                <div className="flex flex-wrap gap-2">
+                  {(product.fonts?.length ? product.fonts : DEFAULT_FONTS).map((item) => (
+                    <button key={item} type="button" onClick={() => setFont(item)} className={`rounded-lg border px-3 py-2 text-xs ${font === item ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40"}`}>
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 text-xs font-medium text-muted-foreground">Màu chữ</div>
+                <div className="flex flex-wrap gap-2">
+                  {ENGRAVING_COLORS.map((item) => (
+                    <button key={item.id} type="button" title={item.id} onClick={() => setColor(item.id)} className={`h-7 w-7 rounded-full border-2 ${color === item.id ? "border-foreground ring-2 ring-primary" : "border-border"}`} style={{ backgroundColor: item.hex }} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 text-xs font-medium text-muted-foreground">Kiểu khắc</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ id: "raised", label: "Khắc nổi" }, { id: "engraved", label: "Khắc chìm" }].map((item) => (
+                    <button key={item.id} type="button" onClick={() => setEngravingType(item.id)} className={`rounded-lg border px-3 py-2 text-xs ${engravingType === item.id ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40"}`}>
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {product.customizable && (
+            <div className="space-y-4 rounded-2xl border border-border bg-card p-4">
+              <div className="text-sm font-semibold">Lời chúc</div>
+              <textarea
+                value={message}
+                onChange={(event) => setMessage(event.target.value.slice(0, 120))}
+                placeholder="Viết lời chúc hoặc để AI gợi ý..."
+                rows={3}
+                className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+              />
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                <input type="checkbox" checked={includeMessage} onChange={(event) => setIncludeMessage(event.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                Khắc cả lời chúc lên sản phẩm
+              </label>
+              <GreetingGenerator
+                productName={product.name}
+                onConfirm={(nextMessage) => { setMessage(nextMessage); setIncludeMessage(true); }}
+              />
+            </div>
+          )}
+
           <div className="flex items-center gap-3">
             <div className="flex items-center rounded-lg border border-border">
               <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid h-12 w-12 place-items-center hover:bg-secondary" aria-label="Giảm"><Minus className="h-4 w-4" /></button>
