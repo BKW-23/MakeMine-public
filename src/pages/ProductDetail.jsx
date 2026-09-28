@@ -232,12 +232,25 @@ export default function ProductDetail() {
                 className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12"
               />
               <div>
-                <div className="mb-2 text-xs font-medium text-muted-foreground">Màu chữ</div>
+                <div className="mb-2 flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">
+                  <span>Màu chữ</span>
+                  <span className="font-mono text-[10px] text-primary">Đang chọn: {color || "Chưa chọn"}</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {productColors.map((item) => (
-                    <button key={item} type="button" title={item} onClick={() => setColor(item)} className={`h-7 w-7 rounded-full border-2 ${color === item ? "border-foreground ring-2 ring-primary" : "border-border"}`} style={{ backgroundColor: colorHex(item) }} />
+                    <button
+                      key={item}
+                      type="button"
+                      title={item}
+                      onClick={() => setColor(item)}
+                      className={`flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-[11px] ${color === item ? "border-foreground bg-primary/10 text-foreground" : "border-border bg-background text-muted-foreground"}`}
+                    >
+                      <span className="h-4 w-4 rounded-full border border-white/50" style={{ backgroundColor: colorHex(item) }} />
+                      <span>{item}</span>
+                    </button>
                   ))}
                 </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">Mỗi màu sẽ hiển thị theo tên màu đã được shop thiết lập cho sản phẩm này.</p>
               </div>
             </div>
           )}

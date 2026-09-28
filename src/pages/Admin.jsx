@@ -593,7 +593,22 @@ function ProductForm({ onSaved, editingId, onCancel }) {
           </div>
         </div>
       </div>
-      <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} placeholder="Màu (cách nhau dấu phẩy)" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12 sm:col-span-2" />
+      <div className="sm:col-span-2 space-y-2">
+        <label className="text-sm font-medium text-foreground">Màu sản phẩm</label>
+        <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} placeholder="Ví dụ: Hồng đào, Tím lavender, Trắng ngọc trai" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+        <div className="rounded-lg border border-dashed border-border bg-secondary/20 p-2 text-xs text-muted-foreground">
+          <div className="mb-1 font-medium text-foreground">Ví dụ hiển thị:</div>
+          <div className="flex flex-wrap gap-2">
+            {['Hồng đào', 'Tím lavender', 'Trắng ngọc trai', 'Xanh bạc hà', 'Đen huyền'].map((name) => (
+              <span key={name} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2 py-1">
+                <span className="h-3 w-3 rounded-full border border-white/50" style={{ backgroundColor: { 'Hồng đào': '#E887A5', 'Tím lavender': '#9D83C7', 'Trắng ngọc trai': '#F4F0E8', 'Xanh bạc hà': '#83C9B1', 'Đen huyền': '#302B35' }[name] }} />
+                {name}
+              </span>
+            ))}
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">Nhập tên màu theo đúng tên sẽ hiển thị trên storefront, mỗi màu cách nhau bằng dấu phẩy. Ví dụ: Hồng đào, Xanh bạc hà, Đen huyền.</p>
+      </div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.customizable} onChange={(e) => setForm({ ...form, customizable: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Có khắc tên</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Nổi bật</label>
       {err && <div className="text-sm text-destructive sm:col-span-2">{err}</div>}
