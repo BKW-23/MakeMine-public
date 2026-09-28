@@ -334,7 +334,7 @@ export default function Admin() {
 
 function ProductForm({ onSaved, editingId, onCancel }) {
   const [form, setForm] = useState({
-    name: "", slug: "", category: "móc khoá", base_price: "", short_description: "",
+    name: "", slug: "", category: "móc khoá", base_price: "", short_description: "", image_url: "",
     customizable: true, colors: "Mint, Lilac, Trắng", fonts: "Sans, Script, Mono", featured: false,
   });
   const [saving, setSaving] = useState(false);
@@ -350,6 +350,7 @@ function ProductForm({ onSaved, editingId, onCancel }) {
         category: product.category || "móc khoá",
         base_price: String(product.base_price || ""),
         short_description: product.short_description || "",
+        image_url: product.image_url || "",
         customizable: Boolean(product.customizable),
         colors: Array.isArray(product.colors) ? product.colors.join(", ") : "",
         fonts: Array.isArray(product.fonts) ? product.fonts.join(", ") : "",
@@ -357,6 +358,17 @@ function ProductForm({ onSaved, editingId, onCancel }) {
       });
     }).catch(() => {});
   }, [editingId]);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({ ...current, image_url: String(reader.result || "") }));
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
 
   const save = async (e) => {
     e.preventDefault();
@@ -370,6 +382,7 @@ function ProductForm({ onSaved, editingId, onCancel }) {
         category: form.category,
         base_price: Number(form.base_price),
         short_description: form.short_description,
+        image_url: form.image_url.trim(),
         customizable: form.customizable,
         colors: form.colors.split(",").map((s) => s.trim()).filter(Boolean),
         fonts: form.fonts.split(",").map((s) => s.trim()).filter(Boolean),
@@ -398,6 +411,21 @@ function ProductForm({ onSaved, editingId, onCancel }) {
         {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
       </select>
       <input value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} placeholder="Mô tả ngắn" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+      <div className="sm:col-span-2 space-y-2">
+        <label className="text-sm font-medium text-foreground">Ảnh sản phẩm</label>
+        <div className="grid gap-3 md:grid-cols-[160px_1fr]">
+          <div className="flex h-40 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-secondary/40">
+            {form.image_url ? <img src={form.image_url} alt="Preview sản phẩm" className="h-full w-full object-cover" /> : <span className="text-xs text-muted-foreground">Chưa có ảnh</span>}
+          </div>
+          <div className="space-y-2">
+            <input type="url" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://... hoặc data URL" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+            <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground">
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              Chọn ảnh từ máy
+            </label>
+          </div>
+        </div>
+      </div>
       <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} placeholder="Màu (cách nhau dấu phẩy)" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
       <input value={form.fonts} onChange={(e) => setForm({ ...form, fonts: e.target.value })} placeholder="Font (cách nhau dấu phẩy)" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.customizable} onChange={(e) => setForm({ ...form, customizable: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Có khắc tên</label>

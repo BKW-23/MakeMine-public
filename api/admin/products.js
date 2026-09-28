@@ -1,4 +1,4 @@
-import { json, requireUser, supabase } from "../_supabase.js";
+import { json, requireUser, supabase, normalizeProductImageUrl } from "../_supabase.js";
 
 export default async function handler(req, res) {
   try {
@@ -14,10 +14,15 @@ export default async function handler(req, res) {
     if (!body.name || !body.slug || !body.category || !Number.isFinite(Number(body.base_price))) {
       return json(res, 400, { error: "Invalid product" });
     }
+    const sanitizedBody = {
+      ...body,
+      base_price: Number(body.base_price),
+      image_url: normalizeProductImageUrl(body.image_url),
+    };
     const rows = await supabase("products", {
       method: "POST",
       headers: { Prefer: "return=representation" },
-      body: JSON.stringify({ ...body, base_price: Number(body.base_price) }),
+      body: JSON.stringify(sanitizedBody),
     });
     json(res, 201, rows[0]);
   } catch (error) {

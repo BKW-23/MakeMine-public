@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { generateOrderCode, checkRateLimit, buildStockUsageMap, buildOrderConfirmationEmail } from "./_supabase.js";
+import { generateOrderCode, checkRateLimit, buildStockUsageMap, buildOrderConfirmationEmail, normalizeProductImageUrl } from "./_supabase.js";
 
 test("generateOrderCode returns a non-empty alphanumeric code", () => {
   const code = generateOrderCode();
@@ -59,4 +59,12 @@ test("buildStockUsageMap aggregates duplicate products and order confirmation pa
   assert.equal(payload.to, "lan@example.com");
   assert.match(payload.subject, /MM-ABC123/i);
   assert.match(payload.html, /250.000/i);
+});
+
+test("normalizeProductImageUrl keeps long data URLs and trims whitespace", () => {
+  const long = `data:image/png;base64,${"A".repeat(4000)}`;
+
+  assert.equal(normalizeProductImageUrl(`  ${long}  `), long);
+  assert.equal(normalizeProductImageUrl(`  /products/demo.png  `), "/products/demo.png");
+  assert.ok(normalizeProductImageUrl(long).length <= 20_000);
 });

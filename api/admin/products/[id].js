@@ -1,4 +1,4 @@
-import { json, requireUser, supabase } from "../../_supabase.js";
+import { json, requireUser, supabase, normalizeProductImageUrl } from "../../_supabase.js";
 
 export default async function handler(req, res) {
   try {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       if (body.category) update.category = String(body.category).slice(0, 40);
       if (body.base_price !== undefined) update.base_price = Number(body.base_price);
       if (body.short_description !== undefined) update.short_description = String(body.short_description || "").slice(0, 500);
-      if (body.image_url !== undefined) update.image_url = String(body.image_url || "").slice(0, 500);
+      if (body.image_url !== undefined) update.image_url = normalizeProductImageUrl(body.image_url);
       if (body.customizable !== undefined) update.customizable = Boolean(body.customizable);
       if (Array.isArray(body.colors)) update.colors = body.colors.slice(0, 20);
       if (Array.isArray(body.fonts)) update.fonts = body.fonts.slice(0, 20);

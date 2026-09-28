@@ -104,6 +104,13 @@ export const buildOrderConfirmationEmail = ({ customer_name, customer_email, ord
   };
 };
 
+export const normalizeProductImageUrl = (value) => {
+  if (value === null || value === undefined) return "";
+  const text = String(value).trim();
+  if (!text) return "";
+  return text.slice(0, 20_000);
+};
+
 export const sendOrderConfirmationEmail = async (payload = {}) => {
   const emailPayload = buildOrderConfirmationEmail(payload);
   if (!emailPayload.to) return null;
