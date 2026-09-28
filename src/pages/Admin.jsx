@@ -414,6 +414,17 @@ function StickerForm({ onSaved, editingId, onCancel }) {
     event.target.value = "";
   };
 
+  const handleIconUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({ ...current, icon_url: String(reader.result || "") }));
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+
   const save = async (e) => {
     e.preventDefault();
     if (!form.label) { setErr("Nhập tên sticker."); return; }
@@ -463,7 +474,18 @@ function StickerForm({ onSaved, editingId, onCancel }) {
       </div>
       <div className="sm:col-span-2 space-y-2">
         <label className="text-sm font-medium text-foreground">Icon phụ</label>
-        <input type="url" value={form.icon_url} onChange={(e) => setForm({ ...form, icon_url: e.target.value })} placeholder="https://... hoặc data URL (tuỳ chọn)" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+        <div className="grid gap-3 md:grid-cols-[96px_1fr]">
+          <div className="flex h-24 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-secondary/40">
+            {form.icon_url ? <img src={form.icon_url} alt="Preview icon phụ" className="h-full w-full object-contain p-2" /> : <span className="text-xs text-muted-foreground">Chưa có icon</span>}
+          </div>
+          <div className="space-y-2">
+            <input type="url" value={form.icon_url} onChange={(e) => setForm({ ...form, icon_url: e.target.value })} placeholder="https://... hoặc data URL (tuỳ chọn)" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+            <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground">
+              <input type="file" accept="image/*" className="hidden" onChange={handleIconUpload} />
+              Chọn icon từ máy
+            </label>
+          </div>
+        </div>
       </div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Hiển thị trên storefront</label>
       {err && <div className="text-sm text-destructive sm:col-span-2">{err}</div>}
