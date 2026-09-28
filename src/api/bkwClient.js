@@ -213,23 +213,43 @@ const products = {
 };
 
 const stickers = {
-  list() {
-    return apiRequest("/api/admin/stickers");
+  async list() {
+    if (!supabaseUrl || !anonKey) return [];
+    try {
+      return await supabaseRequest("/rest/v1/stickers?select=*&order=sort_order.asc,created_at.desc", {
+        headers: { Authorization: `Bearer ${anonKey}` },
+      });
+    } catch (error) {
+      if (error.status === 401) {
+        saveSession(null);
+        return [];
+      }
+      throw error;
+    }
   },
-  create(payload) {
-    return apiRequest("/api/admin/stickers", { method: "POST", body: JSON.stringify(payload) });
-  },
-  update(id, payload) {
-    return apiRequest(`/api/admin/stickers/${encodeURIComponent(id)}`, {
-      method: "PATCH",
+  async create(payload) {
+    return supabaseRequest("/rest/v1/stickers", {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
       body: JSON.stringify(payload),
     });
   },
-  get(id) {
-    return apiRequest(`/api/admin/stickers/${encodeURIComponent(id)}`);
+  async update(id, payload) {
+    return supabaseRequest(`/rest/v1/stickers?id=eq.${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify(payload),
+    });
   },
-  delete(id) {
-    return apiRequest(`/api/admin/stickers/${encodeURIComponent(id)}`, { method: "DELETE" });
+  async get(id) {
+    return supabaseRequest(`/rest/v1/stickers?id=eq.${encodeURIComponent(id)}&select=*`, {
+      headers: { Authorization: `Bearer ${anonKey}` },
+    }).then((rows) => rows[0] || null);
+  },
+  async delete(id) {
+    return supabaseRequest(`/rest/v1/stickers?id=eq.${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
   },
 };
 
