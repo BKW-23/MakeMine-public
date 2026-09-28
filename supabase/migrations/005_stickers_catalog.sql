@@ -10,6 +10,22 @@ create table if not exists public.stickers (
   created_at timestamptz not null default now()
 );
 
+insert into public.stickers (slug, label, emoji, image_url, icon_url, active, sort_order)
+values
+  ('bow', 'Nơ xinh xinh', '🎀', '/stickers/bow.jpg', null, true, 0),
+  ('heart', 'Tim tí hon', '♡', '/stickers/heart.jpg', null, true, 10),
+  ('hello-kitty', 'Kitty miu miu', '♡', '/stickers/hello-kitty.jpg', null, true, 20),
+  ('star', 'Sao lấp lánh', '★', '/stickers/star.jpg', null, true, 30),
+  ('bear', 'Gấu mũm mĩm', '🐻', '/stickers/bear.jpg', '/stickers/bear-icon.png', true, 40),
+  ('sparkle', 'Lấp la lấp lánh', '✦', '/stickers/sparkle.jpg', null, true, 50)
+on conflict (slug) do update
+set label = excluded.label,
+    emoji = excluded.emoji,
+    image_url = excluded.image_url,
+    icon_url = excluded.icon_url,
+    active = excluded.active,
+    sort_order = excluded.sort_order;
+
 alter table public.stickers enable row level security;
 
 -- Public catalog read, admin write.

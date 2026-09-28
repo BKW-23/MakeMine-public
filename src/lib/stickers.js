@@ -30,9 +30,10 @@ export const hydrateStickerCatalog = (items = []) => {
     });
 
   STICKERS = Array.from(map.values())
-    .filter((item) => item && item.label)
+    .filter((item) => item && item.label && item.id !== "none")
     .sort((a, b) => (Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)) || 0);
 
+  STICKERS.unshift(DEFAULT_STICKERS[0]);
   return STICKERS;
 };
 
