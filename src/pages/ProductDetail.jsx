@@ -9,6 +9,7 @@ import DesignStudioModal from "@/components/DesignStudioModal";
 import GreetingGenerator from "@/components/GreetingGenerator";
 
 const ENGRAVING_COLORS = [
+  { id: "Bạc ánh kim", hex: "#D8D9D9" },
   { id: "Hồng đào", hex: "#E887A5" },
   { id: "Tím lavender", hex: "#9D83C7" },
   { id: "Trắng ngọc trai", hex: "#F4F0E8" },
@@ -16,7 +17,7 @@ const ENGRAVING_COLORS = [
   { id: "Xanh denim", hex: "#6F8FB2" },
   { id: "Vàng pastel", hex: "#E7D39A" },
 ];
-const DEFAULT_COLORS = ENGRAVING_COLORS.map((item) => item.id);
+const DEFAULT_COLORS = ["Bạc ánh kim"];
 const COLOR_HEX_MAP = Object.fromEntries(ENGRAVING_COLORS.map((item) => [normalizeColorKey(item.id), item.hex]));
 
 function normalizeColorKey(value) {
@@ -68,7 +69,7 @@ export default function ProductDetail() {
       setProduct(p || null);
       if (p) {
         const productColors = Array.isArray(p.colors) && p.colors.length ? p.colors : DEFAULT_COLORS;
-        setColor(productColors[0]);
+        setColor(productColors.includes("Bạc ánh kim") ? "Bạc ánh kim" : productColors[0] || "Bạc ánh kim");
       }
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -152,7 +153,12 @@ export default function ProductDetail() {
                       style={{
                         fontFamily: "Inter, sans-serif",
                         fontWeight: 700,
-                        textShadow: "1px 1px 0 rgba(255,255,255,.55), 2px 2px 2px rgba(0,0,0,.18)",
+                        background: "linear-gradient(180deg, #ffffff 0%, #dfe3e8 15%, #9aa3ad 32%, #f9fafb 52%, #bcc3cb 68%, #ffffff 100%)",
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text",
+                        color: "transparent",
+                        textShadow: "0 0 10px rgba(255,255,255,0.32), 2px 2px 3px rgba(0,0,0,0.25)",
+                        filter: "drop-shadow(0 1px 0 rgba(255,255,255,0.7))",
                       }}
                     >
                       {name.trim()}
@@ -235,23 +241,15 @@ export default function ProductDetail() {
               <div>
                 <div className="mb-2 flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">
                   <span>Màu chữ</span>
-                  <span className="font-mono text-[10px] text-primary">Đang chọn: {color || "Chưa chọn"}</span>
+                  <span className="font-mono text-[10px] text-primary">Đang chọn: {color || "Bạc ánh kim"}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {productColors.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      title={item}
-                      onClick={() => setColor(item)}
-                      className={`flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-[11px] ${color === item ? "border-foreground bg-primary/10 text-foreground" : "border-border bg-background text-muted-foreground"}`}
-                    >
-                      <span className="h-4 w-4 rounded-full border border-white/50" style={{ backgroundColor: colorHex(item) }} />
-                      <span>{item}</span>
-                    </button>
-                  ))}
+                  <div className="flex items-center gap-2 rounded-full border border-border bg-background px-2.5 py-1.5 text-[11px] text-muted-foreground">
+                    <span className="h-4 w-4 rounded-full border border-white/50" style={{ background: "linear-gradient(135deg, #f5f5f5 0%, #c7c9cc 30%, #f6f6f6 52%, #a5a8ad 100%)" }} />
+                    <span>Bạc ánh kim</span>
+                  </div>
                 </div>
-                <p className="mt-2 text-[11px] text-muted-foreground">Mỗi màu sẽ hiển thị theo tên màu đã được shop thiết lập cho sản phẩm này.</p>
+                <p className="mt-2 text-[11px] text-muted-foreground">Tất cả sản phẩm khắc chữ đều sử dụng màu bạc ánh kim duy nhất.</p>
               </div>
             </div>
           )}
