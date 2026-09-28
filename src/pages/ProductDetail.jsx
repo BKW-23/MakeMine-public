@@ -16,7 +16,16 @@ const ENGRAVING_COLORS = [
   { id: "Đen huyền", hex: "#302B35" },
 ];
 const DEFAULT_COLORS = ENGRAVING_COLORS.map((item) => item.id);
-const DEFAULT_FONTS = ["Sans", "Script", "Mono"];
+const COLOR_HEX_MAP = Object.fromEntries(ENGRAVING_COLORS.map((item) => [normalizeColorKey(item.id), item.hex]));
+
+function normalizeColorKey(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -25,9 +34,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [color, setColor] = useState("");
-  const [font, setFont] = useState("");
   const [sticker, setSticker] = useState("none");
-  const [engravingType, setEngravingType] = useState("raised");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [message, setMessage] = useState("");
@@ -59,8 +66,8 @@ export default function ProductDetail() {
       const p = all.find((x) => x.slug === slug || x.id === slug);
       setProduct(p || null);
       if (p) {
-        setColor(DEFAULT_COLORS[0]);
-        setFont((p.fonts && p.fonts[0]) || DEFAULT_FONTS[0]);
+        const productColors = Array.isArray(p.colors) && p.colors.length ? p.colors : DEFAULT_COLORS;
+        setColor(productColors[0]);
       }
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -84,9 +91,7 @@ export default function ProductDetail() {
       ? {
         name: name.trim(),
         color,
-        font,
         sticker,
-        engravingType,
         message: cardMessage,
         shopSelectedGreeting,
         designLayers: savedDesign,
@@ -109,8 +114,11 @@ export default function ProductDetail() {
     setTimeout(() => setAdded(false), 1800);
   };
 
+  const productColors = Array.isArray(product.colors) && product.colors.length ? product.colors : DEFAULT_COLORS;
+
   const colorHex = (c) => {
-    return ENGRAVING_COLORS.find((item) => item.id === c)?.hex || ENGRAVING_COLORS[0].hex;
+    const normalized = normalizeColorKey(c);
+    return COLOR_HEX_MAP[normalized] || ENGRAVING_COLORS.find((item) => normalizeColorKey(item.id) === normalized)?.hex || ENGRAVING_COLORS[0].hex;
   };
 
   return (
@@ -141,9 +149,9 @@ export default function ProductDetail() {
                     <span
                       className="block text-2xl"
                       style={{
-                        fontFamily: font === "Script" ? "'Brush Script MT', cursive" : font === "Mono" ? "ui-monospace, monospace" : "Inter, sans-serif",
-                        fontWeight: font === "Script" ? 400 : 700,
-                        textShadow: engravingType === "raised" ? "1px 1px 0 rgba(255,255,255,.55), 2px 2px 2px rgba(0,0,0,.18)" : "inset 0 1px 1px rgba(0,0,0,.35)",
+                        fontFamily: "Inter, sans-serif",
+                        fontWeight: 700,
+                        textShadow: "1px 1px 0 rgba(255,255,255,.55), 2px 2px 2px rgba(0,0,0,.18)",
                       }}
                     >
                       {name.trim()}
@@ -224,30 +232,10 @@ export default function ProductDetail() {
                 className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12"
               />
               <div>
-                <div className="mb-2 text-xs font-medium text-muted-foreground">Font chữ</div>
-                <div className="flex flex-wrap gap-2">
-                  {(product.fonts?.length ? product.fonts : DEFAULT_FONTS).map((item) => (
-                    <button key={item} type="button" onClick={() => setFont(item)} className={`rounded-lg border px-3 py-2 text-xs ${font === item ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40"}`}>
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
                 <div className="mb-2 text-xs font-medium text-muted-foreground">Màu chữ</div>
                 <div className="flex flex-wrap gap-2">
-                  {ENGRAVING_COLORS.map((item) => (
-                    <button key={item.id} type="button" title={item.id} onClick={() => setColor(item.id)} className={`h-7 w-7 rounded-full border-2 ${color === item.id ? "border-foreground ring-2 ring-primary" : "border-border"}`} style={{ backgroundColor: item.hex }} />
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="mb-2 text-xs font-medium text-muted-foreground">Kiểu khắc</div>
-                <div className="grid grid-cols-2 gap-2">
-                  {[{ id: "raised", label: "Khắc nổi" }, { id: "engraved", label: "Khắc chìm" }].map((item) => (
-                    <button key={item.id} type="button" onClick={() => setEngravingType(item.id)} className={`rounded-lg border px-3 py-2 text-xs ${engravingType === item.id ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40"}`}>
-                      {item.label}
-                    </button>
+                  {productColors.map((item) => (
+                    <button key={item} type="button" title={item} onClick={() => setColor(item)} className={`h-7 w-7 rounded-full border-2 ${color === item ? "border-foreground ring-2 ring-primary" : "border-border"}`} style={{ backgroundColor: colorHex(item) }} />
                   ))}
                 </div>
               </div>
@@ -353,8 +341,6 @@ export default function ProductDetail() {
           message={message}
           colorHex={colorHex(color)}
           color={color}
-          font={font}
-          engravingType={engravingType}
           showGreetingGenerator={false}
           greetingForm={greetingForm}
           onGreetingFormChange={setGreetingForm}
@@ -366,8 +352,6 @@ export default function ProductDetail() {
             if (changes.name !== undefined) setName(changes.name);
             if (changes.message !== undefined) setMessage(changes.message);
             if (changes.color !== undefined) setColor(changes.color);
-            if (changes.font !== undefined) setFont(changes.font);
-            if (changes.engravingType !== undefined) setEngravingType(changes.engravingType);
             if (changes.showGreetingGenerator !== undefined) setUseAiGreeting(changes.showGreetingGenerator);
             if (changes.textSurface !== undefined) setTextSurface(changes.textSurface);
             if (changes.textScale !== undefined) setTextScale(changes.textScale);

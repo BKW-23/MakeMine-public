@@ -105,14 +105,12 @@ export default function Cart() {
                 <div className="font-medium">{i.name}</div>
                 {i.customization?.name && (
                   <div className="mt-1 text-xs text-muted-foreground font-mono">
-                    Khắc: "{i.customization.name}" · {i.customization.color} · {i.customization.font}
+                    Khắc: "{i.customization.name}" · {i.customization.color}
                   </div>
                 )}
-                {(i.customization?.sticker !== "none" || i.customization?.engravingType) && (
+                {i.customization?.sticker && i.customization.sticker !== "none" && (
                   <div className="mt-1 text-xs text-muted-foreground">
-                    {i.customization?.sticker && i.customization.sticker !== "none" && `Sticker: ${stickerLabel(i.customization.sticker)}`}
-                    {i.customization?.sticker !== "none" && i.customization?.engravingType && " · "}
-                    {i.customization?.engravingType && `Kiểu khắc: ${i.customization.engravingType === "raised" ? "khắc nổi" : "khắc chìm"}`}
+                    Sticker: {stickerLabel(i.customization.sticker)}
                   </div>
                 )}
                 {i.customization?.shopSelectedGreeting ? (

@@ -46,8 +46,6 @@ export default function DesignStudioModal({
   message,
   colorHex,
   color,
-  font,
-  engravingType,
   showGreetingGenerator = false,
   greetingForm = {},
   onGreetingFormChange,
@@ -138,8 +136,6 @@ export default function DesignStudioModal({
       name: "",
       message: "",
       color: ENGRAVING_COLORS[0].id,
-      font: product.fonts?.[0] || "Sans",
-      engravingType: "raised",
     });
     setTextSurface(null);
   };
@@ -147,7 +143,7 @@ export default function DesignStudioModal({
   const closeStudio = () => {
     const selectedLayer = layers.find((layer) => layer.id === selectedId) || layers[layers.length - 1];
     onSave?.(layers, selectedLayer?.sticker?.id || "none", {
-      name, message, color, font, engravingType, textSurface, textScale, textRotation,
+      name, message, color, textSurface, textScale, textRotation,
     });
     onClose();
   };
@@ -437,19 +433,16 @@ export default function DesignStudioModal({
                 className="w-full resize-none rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 outline-none placeholder:text-slate-400 focus:border-pink-400"
               />
               <div className="flex flex-wrap gap-1.5">
-                {product.fonts?.length ? product.fonts.map((item) => (
+                {Array.isArray(product.colors) && product.colors.length ? product.colors.map((item) => (
                   <button
                     key={item}
                     type="button"
-                    onClick={() => onTextChange?.({ font: item })}
-                    className={`rounded-lg border px-2.5 py-1.5 text-[11px] ${font === item ? "border-pink-400 bg-pink-500/10 text-pink-300" : "border-slate-700 text-slate-400 hover:border-pink-400"}`}
-                  >
-                    {item}
-                  </button>
-                )) : null}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {ENGRAVING_COLORS.map((item) => (
+                    title={item}
+                    onClick={() => onTextChange?.({ color: item })}
+                    className={`h-6 w-6 rounded-full border-2 ${color === item ? "border-white ring-2 ring-pink-400" : "border-slate-700"}`}
+                    style={{ backgroundColor: ENGRAVING_COLORS.find((palette) => palette.id.toLowerCase().includes(String(item).toLowerCase()))?.hex || "#ffffff" }}
+                  />
+                )) : ENGRAVING_COLORS.map((item) => (
                   <button
                     key={item.id}
                     type="button"
@@ -458,18 +451,6 @@ export default function DesignStudioModal({
                     className={`h-6 w-6 rounded-full border-2 ${color === item.id ? "border-white ring-2 ring-pink-400" : "border-slate-700"}`}
                     style={{ backgroundColor: item.hex }}
                   />
-                ))}
-              </div>
-              <div className="flex gap-1.5">
-                {ENGRAVING_TYPES.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => onTextChange?.({ engravingType: item.id })}
-                    className={`flex-1 rounded-lg border px-2 py-1.5 text-[11px] ${engravingType === item.id ? "border-pink-400 bg-pink-500/10 text-pink-300" : "border-slate-700 text-slate-400 hover:border-pink-400"}`}
-                  >
-                    {item.label}
-                  </button>
                 ))}
               </div>
             </div>

@@ -133,7 +133,6 @@ export default function OrderTracking() {
                         {it.name} ×{it.quantity}
                         {it.customization?.name && <span className="text-muted-foreground font-mono"> · "{it.customization.name}"</span>}
                         {it.customization?.sticker && it.customization.sticker !== "none" && <span className="text-muted-foreground"> · sticker {stickerLabel(it.customization.sticker)}</span>}
-                        {it.customization?.engravingType && <span className="text-muted-foreground"> · {it.customization.engravingType === "raised" ? "khắc nổi" : "khắc chìm"}</span>}
                         {it.customization?.shopSelectedGreeting ? <span className="text-muted-foreground"> · thiệp: shop chọn lời chúc</span> : it.customization?.message ? <span className="text-muted-foreground"> · thiệp: {it.customization.message}</span> : null}
                       </span>
                       <span className="text-muted-foreground">{formatVND(it.unit_price * it.quantity)}</span>

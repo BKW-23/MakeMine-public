@@ -228,8 +228,6 @@ export default function Admin() {
                             <div className="mt-3 grid gap-2 sm:grid-cols-2">
                               <Info label="Tên khắc" value={customization.name || "Không khắc tên"} />
                               <Info label="Màu chữ" value={customization.color || "Mặc định"} />
-                              <Info label="Font chữ" value={customization.font || "Mặc định"} />
-                              <Info label="Kiểu khắc" value={customization.engravingType === "raised" ? "Khắc nổi" : customization.engravingType === "engraved" ? "Khắc chìm" : "Mặc định"} />
                               <Info label="Sticker" value={customization.sticker && customization.sticker !== "none" ? customization.sticker : "Không có"} />
                               <Info label="Thiệp lời chúc" value={greetingLabel} />
                             </div>
@@ -483,8 +481,8 @@ function StickerForm({ onSaved, editingId, onCancel }) {
 
 function ProductForm({ onSaved, editingId, onCancel }) {
   const [form, setForm] = useState({
-    name: "", slug: "", category: "móc khoá", base_price: "", short_description: "", image_url: "",
-    customizable: true, colors: "Mint, Lilac, Trắng", fonts: "Sans, Script, Mono", featured: false,
+    name: "", slug: "", category: "móc khoà", base_price: "", short_description: "", image_url: "",
+    customizable: true, colors: "Hồng, Tím, Trắng, Xanh, Đen", featured: false,
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
@@ -502,7 +500,6 @@ function ProductForm({ onSaved, editingId, onCancel }) {
         image_url: product.image_url || "",
         customizable: Boolean(product.customizable),
         colors: Array.isArray(product.colors) ? product.colors.join(", ") : "",
-        fonts: Array.isArray(product.fonts) ? product.fonts.join(", ") : "",
         featured: Boolean(product.featured),
       });
     }).catch(() => {});
@@ -534,7 +531,6 @@ function ProductForm({ onSaved, editingId, onCancel }) {
         image_url: form.image_url.trim(),
         customizable: form.customizable,
         colors: form.colors.split(",").map((s) => s.trim()).filter(Boolean),
-        fonts: form.fonts.split(",").map((s) => s.trim()).filter(Boolean),
         featured: form.featured,
       };
 
@@ -575,8 +571,7 @@ function ProductForm({ onSaved, editingId, onCancel }) {
           </div>
         </div>
       </div>
-      <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} placeholder="Màu (cách nhau dấu phẩy)" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
-      <input value={form.fonts} onChange={(e) => setForm({ ...form, fonts: e.target.value })} placeholder="Font (cách nhau dấu phẩy)" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+      <input value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} placeholder="Màu (cách nhau dấu phẩy)" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12 sm:col-span-2" />
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.customizable} onChange={(e) => setForm({ ...form, customizable: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Có khắc tên</label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Nổi bật</label>
       {err && <div className="text-sm text-destructive sm:col-span-2">{err}</div>}
