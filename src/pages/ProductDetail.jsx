@@ -31,7 +31,7 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [message, setMessage] = useState("");
-  const [includeMessage, setIncludeMessage] = useState(false);
+  const [shopSelectedGreeting, setShopSelectedGreeting] = useState(false);
   const [useAiGreeting, setUseAiGreeting] = useState(false);
   const [greetingForm, setGreetingForm] = useState({ recipient: "", relationship: "", occasion: "", hobbies: "", keywords: "" });
   const [textSurface, setTextSurface] = useState(null);
@@ -79,6 +79,7 @@ export default function ProductDetail() {
   }
 
   const handleAdd = () => {
+    const cardMessage = shopSelectedGreeting ? undefined : (message.trim() || undefined);
     const customization = product.customizable
       ? {
         name: name.trim(),
@@ -86,7 +87,8 @@ export default function ProductDetail() {
         font,
         sticker,
         engravingType,
-        message: includeMessage ? message || undefined : undefined,
+        message: cardMessage,
+        shopSelectedGreeting,
         designLayers: savedDesign,
         textSurface,
         textScale,
@@ -125,7 +127,7 @@ export default function ProductDetail() {
               <img src={imageFor(product)} alt={product.name} className="h-full w-full object-cover" />
             )}
             {/* Live engraving preview overlay */}
-            {product.customizable && demoVisible && (name.trim() || message || sticker !== "none") && (
+            {product.customizable && demoVisible && (name.trim() || sticker !== "none") && (
               <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
                 <div className="inline-block max-w-[90%] rounded-lg bg-background/80 backdrop-blur px-4 py-2" style={{ color: colorHex(color) }}>
                   {sticker !== "none" && (
@@ -145,11 +147,6 @@ export default function ProductDetail() {
                       }}
                     >
                       {name.trim()}
-                    </span>
-                  )}
-                  {message && (
-                    <span className="mt-1 block text-sm italic" style={{ fontFamily: "Quicksand, sans-serif" }}>
-                      &ldquo;{message}&rdquo;
                     </span>
                   )}
                 </div>
@@ -259,38 +256,49 @@ export default function ProductDetail() {
 
           {product.customizable && (
             <div className="space-y-4 rounded-2xl border border-border bg-card p-4">
-              <div className="text-sm font-semibold">Lời chúc</div>
-              <textarea
-                value={message}
-                onChange={(event) => setMessage(event.target.value.slice(0, 120))}
-                placeholder="Viết lời chúc hoặc để AI gợi ý..."
-                rows={3}
-                className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-              />
+              <div className="text-sm font-semibold">Thiệp lời chúc đi kèm</div>
               <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <input type="checkbox" checked={includeMessage} onChange={(event) => setIncludeMessage(event.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
-                Khắc cả lời chúc lên sản phẩm
+                <input type="checkbox" checked={shopSelectedGreeting} onChange={(event) => {
+                  const checked = event.target.checked;
+                  setShopSelectedGreeting(checked);
+                  if (checked) {
+                    setUseAiGreeting(false);
+                    setMessage("");
+                  }
+                }} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                Shop chọn lời chúc
               </label>
-              <label className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-xs transition-colors ${useAiGreeting ? "border-primary/40 bg-primary/5" : "border-border bg-background/40"}`}>
-                <span>
-                  <span className="block font-medium text-foreground">AI gợi ý lời chúc</span>
-                  <span className="mt-0.5 block text-muted-foreground">Bật khi bạn muốn tham khảo và biến tấu lời chúc.</span>
-                </span>
-                <input type="checkbox" checked={useAiGreeting} onChange={(event) => setUseAiGreeting(event.target.checked)} className="h-4 w-4 shrink-0 accent-[hsl(var(--primary))]" />
-              </label>
-              <div className={useAiGreeting ? "block" : "hidden"}>
-                <GreetingGenerator
-                  productName={product.name}
-                  initialForm={greetingForm}
-                  onFormChange={setGreetingForm}
-                  theme={isDarkTheme ? "dark" : "light"}
-                  onConfirm={(nextMessage) => {
-                    setMessage(nextMessage);
-                    setIncludeMessage(true);
-                    setUseAiGreeting(true);
-                  }}
-                />
-              </div>
+              {!shopSelectedGreeting && (
+                <>
+                  <textarea
+                    value={message}
+                    onChange={(event) => setMessage(event.target.value.slice(0, 120))}
+                    placeholder="Viết lời chúc cho thiệp đi kèm..."
+                    rows={3}
+                    className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+                  />
+                  <label className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-xs transition-colors ${useAiGreeting ? "border-primary/40 bg-primary/5" : "border-border bg-background/40"}`}>
+                    <span>
+                      <span className="block font-medium text-foreground">AI gợi ý lời chúc</span>
+                      <span className="mt-0.5 block text-muted-foreground">Bật khi bạn muốn tham khảo và biến tấu lời chúc.</span>
+                    </span>
+                    <input type="checkbox" checked={useAiGreeting} onChange={(event) => setUseAiGreeting(event.target.checked)} className="h-4 w-4 shrink-0 accent-[hsl(var(--primary))]" />
+                  </label>
+                  <div className={useAiGreeting ? "block" : "hidden"}>
+                    <GreetingGenerator
+                      productName={product.name}
+                      initialForm={greetingForm}
+                      onFormChange={setGreetingForm}
+                      theme={isDarkTheme ? "dark" : "light"}
+                      onConfirm={(nextMessage) => {
+                        setMessage(nextMessage);
+                        setUseAiGreeting(true);
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              {shopSelectedGreeting && <p className="text-xs text-muted-foreground">Shop sẽ chọn một lời chúc phù hợp để đi kèm với sản phẩm.</p>}
             </div>
           )}
 
@@ -347,8 +355,7 @@ export default function ProductDetail() {
           color={color}
           font={font}
           engravingType={engravingType}
-          includeMessage={includeMessage}
-          showGreetingGenerator={useAiGreeting}
+          showGreetingGenerator={false}
           greetingForm={greetingForm}
           onGreetingFormChange={setGreetingForm}
           initialTextSurface={textSurface}
@@ -361,7 +368,6 @@ export default function ProductDetail() {
             if (changes.color !== undefined) setColor(changes.color);
             if (changes.font !== undefined) setFont(changes.font);
             if (changes.engravingType !== undefined) setEngravingType(changes.engravingType);
-            if (changes.includeMessage !== undefined) setIncludeMessage(changes.includeMessage);
             if (changes.showGreetingGenerator !== undefined) setUseAiGreeting(changes.showGreetingGenerator);
             if (changes.textSurface !== undefined) setTextSurface(changes.textSurface);
             if (changes.textScale !== undefined) setTextScale(changes.textScale);

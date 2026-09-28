@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Copy, HelpCircle, RotateCcw, SlidersHorizontal, Sparkles, Trash2, X } from "lucide-react";
 import { STICKERS } from "@/lib/stickers";
 import ModelPreview from "@/components/ModelPreview";
-import GreetingGenerator from "@/components/GreetingGenerator";
 
 const TINTS = [
   { id: "original", label: "Gốc", hex: null },
@@ -49,7 +48,6 @@ export default function DesignStudioModal({
   color,
   font,
   engravingType,
-  includeMessage,
   showGreetingGenerator = false,
   greetingForm = {},
   onGreetingFormChange,
@@ -142,7 +140,6 @@ export default function DesignStudioModal({
       color: ENGRAVING_COLORS[0].id,
       font: product.fonts?.[0] || "Sans",
       engravingType: "raised",
-      includeMessage: false,
     });
     setTextSurface(null);
   };
@@ -150,7 +147,7 @@ export default function DesignStudioModal({
   const closeStudio = () => {
     const selectedLayer = layers.find((layer) => layer.id === selectedId) || layers[layers.length - 1];
     onSave?.(layers, selectedLayer?.sticker?.id || "none", {
-      name, message, color, font, engravingType, includeMessage, textSurface, textScale, textRotation,
+      name, message, color, font, engravingType, textSurface, textScale, textRotation,
     });
     onClose();
   };
@@ -293,8 +290,8 @@ export default function DesignStudioModal({
                   onMoveLayer={updateSurfaceLayer}
                   onResetView={setResetModelView}
                   text={name}
-                  includeMessage={includeMessage}
-                  message={message}
+                  includeMessage={false}
+                  message={""}
                   textColor={colorHex}
                   textSurface={textSurface}
                   textScale={textScale}
@@ -439,44 +436,6 @@ export default function DesignStudioModal({
                 wrap="soft"
                 className="w-full resize-none rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 outline-none placeholder:text-slate-400 focus:border-pink-400"
               />
-              <textarea
-                value={message}
-                onChange={(event) => onTextChange?.({ message: event.target.value.slice(0, 80) })}
-                placeholder="Lời nhắn (không bắt buộc)"
-                rows={2}
-                wrap="soft"
-                className="w-full resize-none rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 outline-none placeholder:text-slate-400 focus:border-pink-400"
-              />
-              <label className="flex items-center gap-2 text-xs text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={includeMessage}
-                  onChange={(event) => onTextChange?.({ includeMessage: event.target.checked })}
-                  className="h-4 w-4 accent-pink-500"
-                />
-                Khắc cả lời chúc
-              </label>
-              <label className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-xs text-slate-300 transition-colors ${showGreetingGenerator ? "border-pink-400/50 bg-pink-500/5" : "border-slate-700 bg-slate-900/60"}`}>
-                <span>
-                  <span className="block font-medium text-slate-100">AI gợi ý lời chúc</span>
-                  <span className="mt-0.5 block text-[11px] text-slate-400">Bật để tham khảo rồi chỉnh sửa theo ý bạn.</span>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={showGreetingGenerator}
-                  onChange={(event) => onTextChange?.({ showGreetingGenerator: event.target.checked })}
-                  className="h-4 w-4 shrink-0 accent-pink-500"
-                />
-              </label>
-              <div className={showGreetingGenerator ? "block" : "hidden"}>
-                <GreetingGenerator
-                  productName={product.name}
-                  initialForm={greetingForm}
-                  onFormChange={onGreetingFormChange}
-                  theme="dark"
-                  onConfirm={(nextMessage) => onTextChange?.({ message: nextMessage, includeMessage: true })}
-                />
-              </div>
               <div className="flex flex-wrap gap-1.5">
                 {product.fonts?.length ? product.fonts.map((item) => (
                   <button
