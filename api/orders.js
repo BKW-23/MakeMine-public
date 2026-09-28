@@ -35,6 +35,8 @@ const normalizeCustomization = (customization, product) => {
   const message = cleanText(customization.message, 120);
   if (message) next.message = message;
 
+  if (customization.shopSelectedGreeting === true) next.shopSelectedGreeting = true;
+
   const sticker = cleanText(customization.sticker, 40);
   if (sticker && sticker !== "none") next.sticker = sticker;
 

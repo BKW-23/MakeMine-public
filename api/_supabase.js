@@ -104,11 +104,13 @@ export const buildOrderConfirmationEmail = ({ customer_name, customer_email, ord
   };
 };
 
+const MAX_PRODUCT_IMAGE_URL_LENGTH = 5 * 1024 * 1024;
+
 export const normalizeProductImageUrl = (value) => {
   if (value === null || value === undefined) return "";
   const text = String(value).trim();
   if (!text) return "";
-  return text.slice(0, 20_000);
+  return text.slice(0, MAX_PRODUCT_IMAGE_URL_LENGTH);
 };
 
 export const sendOrderConfirmationEmail = async (payload = {}) => {

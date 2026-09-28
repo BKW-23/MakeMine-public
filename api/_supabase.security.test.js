@@ -61,10 +61,12 @@ test("buildStockUsageMap aggregates duplicate products and order confirmation pa
   assert.match(payload.html, /250.000/i);
 });
 
-test("normalizeProductImageUrl keeps long data URLs and trims whitespace", () => {
-  const long = `data:image/png;base64,${"A".repeat(4000)}`;
+test("normalizeProductImageUrl preserves realistic uploaded image data and trims whitespace", () => {
+  const long = `data:image/png;base64,${"A".repeat(300_000)}`;
+  const result = normalizeProductImageUrl(`  ${long}  `);
 
-  assert.equal(normalizeProductImageUrl(`  ${long}  `), long);
+  assert.equal(result, long);
   assert.equal(normalizeProductImageUrl(`  /products/demo.png  `), "/products/demo.png");
-  assert.ok(normalizeProductImageUrl(long).length <= 20_000);
+  assert.ok(result.length > 250_000);
+  assert.ok(result.length <= 5 * 1024 * 1024);
 });

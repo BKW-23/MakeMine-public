@@ -115,9 +115,11 @@ export default function Cart() {
                     {i.customization?.engravingType && `Kiểu khắc: ${i.customization.engravingType === "raised" ? "khắc nổi" : "khắc chìm"}`}
                   </div>
                 )}
-                {i.customization?.message && (
+                {i.customization?.shopSelectedGreeting ? (
+                  <div className="mt-1 text-xs text-foreground/80">Lời chúc: Shop sẽ chọn cho bạn</div>
+                ) : i.customization?.message ? (
                   <div className="mt-1 text-xs italic text-foreground/80">Lời chúc: "{i.customization.message}"</div>
-                )}
+                ) : null}
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center rounded-lg border border-border">
                     <button onClick={() => updateQty(i.key, i.qty - 1)} className="grid h-9 w-9 place-items-center hover:bg-secondary"><Minus className="h-3.5 w-3.5" /></button>

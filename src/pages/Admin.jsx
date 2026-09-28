@@ -172,6 +172,7 @@ export default function Admin() {
                         const customization = item.customization || {};
                         const layers = Array.isArray(customization.designLayers) ? customization.designLayers : [];
                         const hasDesign = layers.length > 0 || customization.textSurface || customization.textScale !== undefined || customization.textRotation !== undefined;
+                        const greetingLabel = customization.shopSelectedGreeting ? "Shop chọn lời chúc" : customization.message || "Không có";
                         return (
                           <div key={`${o.id}-detail-${index}`} className="rounded-lg border border-border/70 bg-background/40 p-3">
                             <div className="flex flex-wrap items-start justify-between gap-2">
@@ -187,7 +188,7 @@ export default function Admin() {
                               <Info label="Font chữ" value={customization.font || "Mặc định"} />
                               <Info label="Kiểu khắc" value={customization.engravingType === "raised" ? "Khắc nổi" : customization.engravingType === "engraved" ? "Khắc chìm" : "Mặc định"} />
                               <Info label="Sticker" value={customization.sticker && customization.sticker !== "none" ? customization.sticker : "Không có"} />
-                              <Info label="Lời chúc" value={customization.message || "Không có"} />
+                              <Info label="Thiệp lời chúc" value={greetingLabel} />
                             </div>
                             {hasDesign && (
                               <div className="mt-3 rounded-md border border-primary/20 bg-primary/5 p-3">
