@@ -35,7 +35,8 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState("Bạc ánh kim");
+  const [productColor, setProductColor] = useState("");
   const [sticker, setSticker] = useState("none");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -69,7 +70,9 @@ export default function ProductDetail() {
       setProduct(p || null);
       if (p) {
         const productColors = Array.isArray(p.colors) && p.colors.length ? p.colors : DEFAULT_COLORS;
-        setColor(productColors.includes("Bạc ánh kim") ? "Bạc ánh kim" : productColors[0] || "Bạc ánh kim");
+        const nextProductColor = productColors.find((item) => normalizeColorKey(item) !== normalizeColorKey("Bạc ánh kim")) || productColors[0] || "Hồng đào";
+        setColor("Bạc ánh kim");
+        setProductColor(nextProductColor);
       }
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -93,6 +96,7 @@ export default function ProductDetail() {
       ? {
         name: name.trim(),
         color,
+        productColor,
         sticker,
         message: cardMessage,
         shopSelectedGreeting,
@@ -117,6 +121,7 @@ export default function ProductDetail() {
   };
 
   const productColors = Array.isArray(product.colors) && product.colors.length ? product.colors : DEFAULT_COLORS;
+  const nonSilverProductColors = productColors.filter((item) => normalizeColorKey(item) !== normalizeColorKey("Bạc ánh kim"));
 
   const colorHex = (c) => {
     const normalized = normalizeColorKey(c);
@@ -250,6 +255,31 @@ export default function ProductDetail() {
                   </div>
                 </div>
                 <p className="mt-2 text-[11px] text-muted-foreground">Tất cả sản phẩm khắc chữ đều sử dụng màu bạc ánh kim duy nhất.</p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                  <span>Màu sản phẩm</span>
+                  <span className="font-mono text-[10px] text-primary">{nonSilverProductColors.length} màu có sẵn</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {nonSilverProductColors.length ? (
+                    nonSilverProductColors.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setProductColor(item)}
+                        className={`flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-[11px] transition-colors ${productColor === item ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-muted-foreground"}`}
+                      >
+                        <span className="h-4 w-4 rounded-full border border-white/50" style={{ backgroundColor: colorHex(item) }} />
+                        <span>{item}</span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-[11px] text-muted-foreground">Không có màu sản phẩm khác</div>
+                  )}
+                </div>
+                <div className="text-[11px] text-primary">Đang chọn: {productColor || "Chưa chọn"}</div>
               </div>
             </div>
           )}
