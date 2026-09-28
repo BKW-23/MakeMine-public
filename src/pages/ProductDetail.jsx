@@ -13,6 +13,7 @@ const ENGRAVING_COLORS = [
   { id: "Tím lavender", hex: "#9D83C7" },
   { id: "Trắng ngọc trai", hex: "#F4F0E8" },
   { id: "Xanh bạc hà", hex: "#83C9B1" },
+  { id: "Xanh denim", hex: "#6F8FB2" },
   { id: "Vàng pastel", hex: "#E7D39A" },
 ];
 const DEFAULT_COLORS = ENGRAVING_COLORS.map((item) => item.id);
