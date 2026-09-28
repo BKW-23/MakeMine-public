@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BKW } from "@/api/bkwClient";
 import { Plus, Loader2, Package, ClipboardList, Pencil, Search, ExternalLink, Activity, CheckCircle2, CircleAlert, ChevronDown } from "lucide-react";
 import { imageFor, formatVND, CATEGORIES } from "@/lib/productImages";
+import { hydrateStickerCatalog } from "@/lib/stickers";
 
 const STATUS = ["pending", "paid", "shipped", "delivered", "cancelled"];
 
@@ -9,9 +10,12 @@ export default function Admin() {
   const [tab, setTab] = useState("products");
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [stickers, setStickers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showStickerForm, setShowStickerForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [editingStickerId, setEditingStickerId] = useState(null);
   const [researchLoading, setResearchLoading] = useState(false);
   const [researchResults, setResearchResults] = useState([]);
   const [researchQuery, setResearchQuery] = useState("");
@@ -26,9 +30,12 @@ export default function Admin() {
     Promise.all([
       BKW.entities.Product.list("-created_date", 60),
       BKW.entities.Order.list("-created_date", 60),
-    ]).then(([p, o]) => {
+      BKW.entities.Sticker.list(),
+    ]).then(([p, o, s]) => {
       setProducts(p);
       setOrders(o);
+      setStickers(Array.isArray(s) ? s : []);
+      hydrateStickerCatalog(Array.isArray(s) ? s : []);
       setLoading(false);
     }).catch(() => setLoading(false));
   };
@@ -43,6 +50,12 @@ export default function Admin() {
   const deleteProduct = async (id) => {
     if (!confirm("Xoá sản phẩm này?")) return;
     await BKW.entities.Product.delete(id);
+    load();
+  };
+
+  const deleteSticker = async (id) => {
+    if (!confirm("Xoá sticker này?")) return;
+    await BKW.entities.Sticker.delete(id);
     load();
   };
 
@@ -83,6 +96,9 @@ export default function Admin() {
         <button onClick={() => setTab("products")} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${tab === "products" ? "bg-primary text-primary-foreground" : "border border-border hover:border-primary/40"}`}>
           <Package className="h-4 w-4" /> Sản phẩm ({products.length})
         </button>
+        <button onClick={() => setTab("stickers")} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${tab === "stickers" ? "bg-primary text-primary-foreground" : "border border-border hover:border-primary/40"}`}>
+          <Package className="h-4 w-4" /> Sticker ({stickers.length})
+        </button>
         <button onClick={() => setTab("orders")} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${tab === "orders" ? "bg-primary text-primary-foreground" : "border border-border hover:border-primary/40"}`}>
           <ClipboardList className="h-4 w-4" /> Đơn hàng ({orders.length})
         </button>
@@ -118,6 +134,33 @@ export default function Admin() {
                 <div className="flex flex-col gap-2 self-start">
                   <button onClick={() => { setEditingId(p.id); setShowForm(true); }} className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"><Pencil className="h-3 w-3" /> Sửa</button>
                   <button onClick={() => deleteProduct(p.id)} className="text-xs text-muted-foreground hover:text-destructive">Xoá</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : tab === "stickers" ? (
+        <div>
+          <div className="mb-4">
+            <button onClick={() => setShowStickerForm((v) => !v)} className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_12px_30px_-10px_rgba(255,122,162,0.6)] hover:brightness-105 min-h-12">
+              <Plus className="h-4 w-4" /> {showStickerForm ? "Đóng" : "Thêm sticker"}
+            </button>
+          </div>
+          {showStickerForm && <StickerForm onSaved={() => { setShowStickerForm(false); setEditingStickerId(null); load(); }} editingId={editingStickerId} onCancel={() => { setShowStickerForm(false); setEditingStickerId(null); }} />}
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {stickers.map((sticker) => (
+              <div key={sticker.id} className="flex gap-3 rounded-xl border border-border bg-card p-3">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-secondary">
+                  {sticker.image_url || sticker.image ? <img src={sticker.image_url || sticker.image} alt={sticker.label} className="h-full w-full object-cover" /> : <span className="grid h-full w-full place-items-center text-2xl">{sticker.emoji || "✨"}</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm truncate">{sticker.label}</div>
+                  <div className="text-xs text-muted-foreground">{sticker.slug}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{sticker.active === false ? "Ẩn" : "Hiển thị"}</div>
+                </div>
+                <div className="flex flex-col gap-2 self-start">
+                  <button onClick={() => { setEditingStickerId(sticker.id); setShowStickerForm(true); }} className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"><Pencil className="h-3 w-3" /> Sửa</button>
+                  <button onClick={() => deleteSticker(sticker.id)} className="text-xs text-muted-foreground hover:text-destructive">Xoá</button>
                 </div>
               </div>
             ))}
@@ -330,6 +373,111 @@ export default function Admin() {
         </section>
       )}
     </div>
+  );
+}
+
+function StickerForm({ onSaved, editingId, onCancel }) {
+  const [form, setForm] = useState({
+    label: "",
+    slug: "",
+    emoji: "✨",
+    image_url: "",
+    icon_url: "",
+    active: true,
+    sort_order: 0,
+  });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    if (!editingId) return;
+    BKW.entities.Sticker.get(editingId).then((sticker) => {
+      if (!sticker) return;
+      setForm({
+        label: sticker.label || "",
+        slug: sticker.slug || "",
+        emoji: sticker.emoji || "✨",
+        image_url: sticker.image_url || "",
+        icon_url: sticker.icon_url || "",
+        active: sticker.active !== false,
+        sort_order: Number(sticker.sort_order ?? 0),
+      });
+    }).catch(() => {});
+  }, [editingId]);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({ ...current, image_url: String(reader.result || "") }));
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+
+  const save = async (e) => {
+    e.preventDefault();
+    if (!form.label) { setErr("Nhập tên sticker."); return; }
+    setSaving(true);
+    setErr("");
+    try {
+      const payload = {
+        label: form.label,
+        slug: form.slug || form.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/\s+/g, "-").replace(/[^a-z0-9-_]+/g, ""),
+        emoji: form.emoji,
+        image_url: form.image_url.trim(),
+        icon_url: form.icon_url.trim(),
+        active: form.active,
+        sort_order: Number(form.sort_order || 0),
+      };
+
+      if (editingId) await BKW.entities.Sticker.update(editingId, payload);
+      else await BKW.entities.Sticker.create(payload);
+      onSaved();
+    } catch (error) {
+      setErr("Không lưu được sticker.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={save} className="mb-6 rounded-3xl border border-border bg-card p-5 grid gap-3 sm:grid-cols-2 shadow-[0_18px_50px_-24px_rgba(255,122,162,0.25)]">
+      <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Tên sticker *" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+      <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="Slug (tự tạo nếu để trống)" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+      <input value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value })} placeholder="Emoji" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+      <input value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} type="number" placeholder="Thứ tự" className="rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+      <div className="sm:col-span-2 space-y-2">
+        <label className="text-sm font-medium text-foreground">Ảnh sticker</label>
+        <div className="grid gap-3 md:grid-cols-[160px_1fr]">
+          <div className="flex h-40 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-secondary/40">
+            {form.image_url ? <img src={form.image_url} alt="Preview sticker" className="h-full w-full object-cover" /> : <span className="text-xs text-muted-foreground">Chưa có ảnh</span>}
+          </div>
+          <div className="space-y-2">
+            <input type="url" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://... hoặc data URL" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+            <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground">
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              Chọn ảnh từ máy
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="sm:col-span-2 space-y-2">
+        <label className="text-sm font-medium text-foreground">Icon phụ</label>
+        <input type="url" value={form.icon_url} onChange={(e) => setForm({ ...form, icon_url: e.target.value })} placeholder="https://... hoặc data URL (tuỳ chọn)" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary min-h-12" />
+      </div>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Hiển thị trên storefront</label>
+      {err && <div className="text-sm text-destructive sm:col-span-2">{err}</div>}
+      <div className="sm:col-span-2 flex items-center gap-3">
+        <button disabled={saving} className="flex-1 flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[0_12px_30px_-10px_rgba(255,122,162,0.6)] hover:brightness-105 disabled:opacity-60 min-h-12">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {editingId ? "Cập nhật sticker" : "Lưu sticker"}
+        </button>
+        {onCancel && (
+          <button type="button" onClick={onCancel} className="rounded-full border border-border px-4 py-3 text-sm font-medium text-muted-foreground">Huỷ</button>
+        )}
+      </div>
+    </form>
   );
 }
 

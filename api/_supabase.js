@@ -113,6 +113,13 @@ export const normalizeProductImageUrl = (value) => {
   return text.slice(0, MAX_PRODUCT_IMAGE_URL_LENGTH);
 };
 
+export const normalizeStickerImageUrl = (value) => {
+  if (value === null || value === undefined) return "";
+  const text = String(value).trim();
+  if (!text) return "";
+  return text.slice(0, 5 * 1024 * 1024);
+};
+
 export const sendOrderConfirmationEmail = async (payload = {}) => {
   const emailPayload = buildOrderConfirmationEmail(payload);
   if (!emailPayload.to) return null;
