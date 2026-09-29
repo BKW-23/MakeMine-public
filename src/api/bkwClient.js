@@ -394,4 +394,10 @@ const adminApiStatus = {
   },
 };
 
-export const BKW = { entities: { Product: products, Order: orders, Sticker: stickers }, functions, auth, adminApiStatus };
+const siteSettings = {
+  get() {
+    return apiRequest("/api/site-settings");
+  },
+};
+
+export const BKW = { entities: { Product: products, Order: orders, Sticker: stickers }, functions, auth, adminApiStatus, siteSettings };

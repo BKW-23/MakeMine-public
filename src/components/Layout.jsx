@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { History, LogIn, LogOut, ShoppingBag, Menu, X } from "lucide-react";
+import { BKW } from "@/api/bkwClient";
 import { useCart } from "@/lib/cart";
 import GiftAssistant from "@/components/GiftAssistant";
 import { useAuth } from "@/lib/AuthContext";
+
+const DEFAULT_CONTACT = { address: "ĐH FPT, TP. Hà Nội", email: "hotro@makemine.vn", tiktok: "makemine" };
 
 const NAV = [
   { to: "/", label: "Trang chủ" },
@@ -21,6 +24,7 @@ export default function Layout() {
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [contact, setContact] = useState(DEFAULT_CONTACT);
   const accountRef = useRef(null);
   const navRef = useRef(null);
   const activeNavRef = useRef(null);
@@ -31,6 +35,16 @@ export default function Layout() {
     const nextDark = savedTheme ? savedTheme === "dark" : prefersDark;
     setIsDark(nextDark);
     document.documentElement.dataset.theme = nextDark ? "dark" : "light";
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    BKW.siteSettings.get()
+      .then((data) => {
+        if (active && data.contact) setContact({ ...DEFAULT_CONTACT, ...data.contact });
+      })
+      .catch(() => {});
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
@@ -263,9 +277,9 @@ export default function Layout() {
           <div>
             <div className="text-sm font-semibold mb-3">Liên hệ</div>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>ĐH FPT, TP. Hà Nội</li>
-              <li>hotro@makemine.vn</li>
-              <li>TikTok: @makemine</li>
+              {contact.address && <li>{contact.address}</li>}
+              {contact.email && <li><a href={`mailto:${contact.email}`} className="hover:text-primary">{contact.email}</a></li>}
+              {contact.tiktok && <li><a href={`https://www.tiktok.com/@${encodeURIComponent(contact.tiktok.replace(/^@/, ""))}`} target="_blank" rel="noreferrer" className="hover:text-primary">TikTok: @{contact.tiktok.replace(/^@/, "")}</a></li>}
             </ul>
           </div>
         </div>
