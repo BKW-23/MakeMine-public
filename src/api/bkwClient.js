@@ -184,7 +184,7 @@ const request = async (url, options = {}) => {
   if (!response.ok) {
     const error = Object.assign(
       new Error(data?.message || data?.error_description || data?.error || "Request failed"),
-      { status: response.status },
+      { status: response.status, code: data?.code, data },
     );
     throw error;
   }

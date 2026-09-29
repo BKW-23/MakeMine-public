@@ -30,13 +30,25 @@ export function CartProvider({ children }) {
   const removeItem = (key) => setItems((prev) => prev.filter((p) => p.key !== key));
   const updateQty = (key, qty) =>
     setItems((prev) => prev.map((p) => (p.key === key ? { ...p, qty: Math.max(1, qty) } : p)));
+  const updateProductPrices = (currentProducts = []) => {
+    const byId = new Map(currentProducts.map((product) => [String(product.product_id), product]));
+    setItems((prev) => prev.map((item) => {
+      const currentProduct = byId.get(String(item.product_id));
+      if (!currentProduct || !Number.isFinite(Number(currentProduct.unit_price))) return item;
+      return {
+        ...item,
+        name: currentProduct.name || item.name,
+        unit_price: Number(currentProduct.unit_price),
+      };
+    }));
+  };
   const clear = () => setItems([]);
 
   const total = items.reduce((s, i) => s + i.unit_price * i.qty, 0);
   const count = items.reduce((s, i) => s + i.qty, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clear, total, count }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, updateProductPrices, clear, total, count }}>
       {children}
     </CartContext.Provider>
   );

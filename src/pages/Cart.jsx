@@ -7,7 +7,7 @@ import { formatVND } from "@/lib/productImages";
 import { stickerLabel } from "@/lib/stickers";
 
 export default function Cart() {
-  const { items, removeItem, updateQty, total, clear } = useCart();
+  const { items, removeItem, updateQty, updateProductPrices, total, clear } = useCart();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "" });
   const [confirmed, setConfirmed] = useState(false);
@@ -53,7 +53,18 @@ export default function Cart() {
       setOrderId(res.id);
       clear();
     } catch (err) {
-      setError("Không tạo được đơn hàng, vui lòng thử lại.");
+      if (err.code === "PRICE_CHANGED") {
+        updateProductPrices(err.data?.items || []);
+        setError("Giá đã được cập nhật. Giỏ hàng đã làm mới theo giá hiện tại; vui lòng kiểm tra tổng tiền rồi đặt hàng lại.");
+      } else if (err.code === "PRODUCT_UNAVAILABLE") {
+        setError("Một sản phẩm trong giỏ không còn khả dụng. Vui lòng xóa sản phẩm đó hoặc chọn sản phẩm khác.");
+      } else if (err.code === "OUT_OF_STOCK" || err.status === 409) {
+        setError("Sản phẩm trong giỏ đã hết hàng hoặc tồn kho không đủ. Vui lòng liên hệ shop để được hỗ trợ.");
+      } else if (err.status === 429) {
+        setError("Bạn vừa gửi yêu cầu đặt hàng. Vui lòng đợi một phút rồi thử lại.");
+      } else {
+        setError("Không tạo được đơn hàng. Vui lòng kiểm tra thông tin nhận hàng hoặc thử lại sau.");
+      }
     } finally {
       setPlacing(false);
     }

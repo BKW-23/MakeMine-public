@@ -120,7 +120,7 @@ export default async function handler(req, res) {
       const quantity = Number(item?.quantity);
 
       if (!product) {
-        throw Object.assign(new Error("Invalid product"), { status: 400 });
+        throw Object.assign(new Error("Sản phẩm không còn khả dụng."), { status: 409, code: "PRODUCT_UNAVAILABLE" });
       }
 
       if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
@@ -128,7 +128,7 @@ export default async function handler(req, res) {
       }
 
       if (product.stock < quantity) {
-        throw Object.assign(new Error(`Out of stock: ${product.name}`), { status: 409 });
+        throw Object.assign(new Error(`Out of stock: ${product.name}`), { status: 409, code: "OUT_OF_STOCK" });
       }
 
       return {
@@ -148,7 +148,17 @@ export default async function handler(req, res) {
 
     const providedTotal = Number(body.total);
     if (Number.isFinite(providedTotal) && Math.abs(providedTotal - finalTotal) > 0.01) {
-      return json(res, 400, { error: "Order total does not match server-side price calculation" });
+      return json(res, 409, {
+        code: "PRICE_CHANGED",
+        error: "Giá sản phẩm đã thay đổi.",
+        items: normalizedItems.map(({ product_id, name: productName, quantity, unit_price }) => ({
+          product_id,
+          name: productName,
+          quantity,
+          unit_price,
+        })),
+        total: finalTotal,
+      });
     }
 
     const orderCode = generateOrderCode();
@@ -207,6 +217,6 @@ export default async function handler(req, res) {
 
     return json(res, 201, created || { order_code: orderCode, customer_name: name, total: finalTotal, status: "pending" });
   } catch (error) {
-    json(res, error.status || 500, { error: error.message });
+    json(res, error.status || 500, { error: error.message, code: error.code });
   }
 }
