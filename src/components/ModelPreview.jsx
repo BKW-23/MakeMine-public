@@ -201,6 +201,25 @@ export default function ModelPreview({
       (error) => console.error("Unable to load product model.", error)
     );
 
+    const addSurfaceDecals = (position, orientation, size, material, renderOrder) => {
+      if (!model) return;
+      model.updateMatrixWorld(true);
+      const worldPosition = model.localToWorld(position.clone());
+      const worldToModel = model.matrixWorld.clone().invert();
+
+      modelMeshes.forEach((target) => {
+        const geometry = new DecalGeometry(target, worldPosition, orientation, size);
+        if (!geometry.getAttribute("position")?.count) {
+          geometry.dispose();
+          return;
+        }
+        geometry.applyMatrix4(worldToModel);
+        const decal = new THREE.Mesh(geometry, material);
+        decal.renderOrder = renderOrder;
+        stickerGroup.add(decal);
+      });
+    };
+
     // --- RENDER LOOP & STICKERS ---
     let frameId;
     const animate = () => {
@@ -260,21 +279,17 @@ export default function ModelPreview({
               side: THREE.FrontSide,
               opacity: layer.opacity / 100,
             });
-
-            const decal = new DecalGeometry(
-              modelMeshes[0],
+            addSurfaceDecals(
               position,
               orientation,
               new THREE.Vector3(
                 modelSize.x * 0.16 * layer.scale * aspect,
                 modelSize.x * 0.16 * layer.scale,
-                Math.max(modelSize.z * 0.04, 0.001)
-              )
+                Math.max(modelSize.length() * 0.06, 0.01)
+              ),
+              material,
+              10
             );
-            const mesh = new THREE.Mesh(decal, material);
-            mesh.userData.layerId = layer.id;
-            mesh.renderOrder = 10;
-            stickerGroup.add(mesh);
 
             const pickMesh = new THREE.Mesh(
               new THREE.PlaneGeometry(
@@ -373,12 +388,13 @@ export default function ModelPreview({
               polygonOffset: true,
               polygonOffsetFactor: -4,
             });
-            const textMesh = new THREE.Mesh(
-              new DecalGeometry(modelMeshes[0], position, orientation, new THREE.Vector3(textWidth, textHeight, Math.max(modelSize.z * 0.04, 0.001))),
-              material
+            addSurfaceDecals(
+              position,
+              orientation,
+              new THREE.Vector3(textWidth, textHeight, Math.max(modelSize.length() * 0.06, 0.01)),
+              material,
+              12
             );
-            textMesh.renderOrder = 12;
-            stickerGroup.add(textMesh);
 
             const pickMesh = new THREE.Mesh(
               new THREE.PlaneGeometry(textWidth, textHeight),
