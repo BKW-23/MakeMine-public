@@ -13,6 +13,16 @@ export default async function handler(req, res) {
       const body = req.body || {};
       const orderCode = String(body.order_code || "").trim().slice(0, 40);
       const customerPhone = String(body.customer_phone || "").trim().slice(0, 30);
+      if (body.type === "received") {
+        if (!orderCode || !customerPhone) {
+          return json(res, 400, { error: "Vui lòng nhập mã đơn và số điện thoại." });
+        }
+        const order = await supabase("rpc/confirm_order_received", {
+          method: "POST",
+          body: JSON.stringify({ p_order_code: orderCode, p_customer_phone: customerPhone }),
+        });
+        return json(res, 200, { order_code: orderCode, customer_received_at: order.customer_received_at });
+      }
       const type = body.type === "cancel" ? "cancel" : body.type === "edit" ? "edit" : "";
       const message = String(body.message || "").trim().slice(0, 500);
       if (!orderCode || !customerPhone || !type || (type === "edit" && !message)) {
@@ -60,7 +70,7 @@ export default async function handler(req, res) {
       return json(res, 400, { error: "Search query required" });
     }
 
-    const rows = await supabase(`orders?or=(${filters})&select=id,order_code,customer_name,customer_phone,address,items,total,status,payment_status,customer_request,created_at&limit=5`);
+    const rows = await supabase(`orders?or=(${filters})&select=id,order_code,customer_name,customer_phone,address,items,total,status,payment_status,customer_request,customer_received_at,status_history,created_at&limit=5`);
     json(res, 200, rows);
   } catch (error) {
     json(res, error.status || 500, { error: error.message });
