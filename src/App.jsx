@@ -13,14 +13,12 @@ import Catalog from '@/pages/Catalog';
 import ProductDetail from '@/pages/ProductDetail';
 import Cart from '@/pages/Cart';
 import OrderTracking from '@/pages/OrderTracking';
-import Admin from '@/pages/Admin';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Terms from '@/pages/Terms';
 import Guide from '@/pages/Guide';
-import ProtectedRoute from '@/components/ProtectedRoute';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -47,9 +45,6 @@ const AuthenticatedApp = () => {
           <Route path="/don-hang" element={<OrderTracking />} />
           <Route path="/dieu-khoan" element={<Terms />} />
           <Route path="/huong-dan" element={<Guide />} />
-          <Route element={<ProtectedRoute unauthenticatedElement={<Login />} />}>
-            <Route path="/admin" element={<Admin />} />
-          </Route>
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

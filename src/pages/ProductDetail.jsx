@@ -255,7 +255,6 @@ export default function ProductDetail() {
                   </div>
                 </div>
                 <p className="mt-2 text-[11px] text-muted-foreground">Tất cả sản phẩm khắc chữ đều sử dụng màu bạc ánh kim duy nhất.</p>
-<<<<<<< HEAD
               </div>
 
               <div className="space-y-2">
@@ -281,8 +280,6 @@ export default function ProductDetail() {
                   )}
                 </div>
                 <div className="text-[11px] text-primary">Đang chọn: {productColor || "Chưa chọn"}</div>
-=======
->>>>>>> 02b2557 (Apply chrome silver engraving effect)
               </div>
             </div>
           )}

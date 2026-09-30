@@ -14,7 +14,6 @@ const NAV = [
   { to: "/don-hang", label: "Đơn hàng" },
   { to: "/huong-dan", label: "Hướng dẫn" },
   { to: "/dieu-khoan", label: "Điều khoản" },
-  { to: "/admin", label: "Quản trị" },
 ];
 
 export default function Layout() {

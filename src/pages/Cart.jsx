@@ -50,7 +50,7 @@ export default function Cart() {
         status: "pending",
         preview_confirmed: confirmed,
       });
-      setOrderId(res.id);
+      setOrderId(res.order_code || res.id);
       clear();
     } catch (err) {
       if (err.code === "PRICE_CHANGED") {

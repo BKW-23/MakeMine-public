@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   try {
     const user = await requireUser(req);
     const orders = await supabase(
-      `orders?user_id=eq.${encodeURIComponent(user.id)}&select=id,order_code,customer_name,customer_phone,address,items,total,status,created_at&order=created_at.desc`,
+      `orders?user_id=eq.${encodeURIComponent(user.id)}&select=id,order_code,customer_name,customer_phone,address,items,total,status,payment_status,customer_request,created_at&order=created_at.desc`,
     );
     json(res, 200, orders);
   } catch (error) {

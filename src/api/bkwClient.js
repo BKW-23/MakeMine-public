@@ -302,6 +302,9 @@ const orders = {
   history() {
     return apiRequest("/api/orders-history");
   },
+  requestChange(payload) {
+    return apiRequest("/api/orders-lookup", { method: "POST", body: JSON.stringify(payload) });
+  },
   update(id, payload) {
     return apiRequest(`/api/admin/orders/${encodeURIComponent(id)}`, {
       method: "PATCH",
