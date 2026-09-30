@@ -6,7 +6,7 @@ import { useCart } from "@/lib/cart";
 import GiftAssistant from "@/components/GiftAssistant";
 import { useAuth } from "@/lib/AuthContext";
 
-const DEFAULT_CONTACT = { address: "ĐH FPT, TP. Hà Nội", email: "hotro@makemine.vn", tiktok: "makemine" };
+const DEFAULT_CONTACT = { address: "ĐH FPT, TP. Hà Nội", email: "hotro@makemine.vn", tiktok: "makemine", links: [] };
 
 const NAV = [
   { to: "/", label: "Trang chủ" },
@@ -279,6 +279,9 @@ export default function Layout() {
               {contact.address && <li>{contact.address}</li>}
               {contact.email && <li><a href={`mailto:${contact.email}`} className="hover:text-primary">{contact.email}</a></li>}
               {contact.tiktok && <li><a href={`https://www.tiktok.com/@${encodeURIComponent(contact.tiktok.replace(/^@/, ""))}`} target="_blank" rel="noreferrer" className="hover:text-primary">TikTok: @{contact.tiktok.replace(/^@/, "")}</a></li>}
+              {(Array.isArray(contact.links) ? contact.links : []).filter((link) => link.label && /^https:\/\//i.test(link.url || "")).map((link, index) => (
+                <li key={`${link.url}-${index}`}><a href={link.url} target="_blank" rel="nofollow noreferrer" className="hover:text-primary">{link.label}</a></li>
+              ))}
             </ul>
           </div>
         </div>
