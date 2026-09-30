@@ -6,7 +6,8 @@ import { useCart } from "@/lib/cart";
 import GiftAssistant from "@/components/GiftAssistant";
 import { useAuth } from "@/lib/AuthContext";
 
-const DEFAULT_CONTACT = { address: "ĐH FPT, TP. Hà Nội", email: "hotro@makemine.vn", tiktok: "makemine", links: [] };
+const DEFAULT_CONTACT = { entries: [{ type: "text", label: "", value: "ĐH FPT, TP. Hà Nội" }] };
+const isContactLink = (value) => /^https:\/\//i.test(value || "") || /^mailto:[^\s@?]+@[^\s@?.]+\.[^\s@?]+(?:\?.*)?$/i.test(value || "");
 
 const NAV = [
   { to: "/", label: "Trang chủ" },
@@ -276,9 +277,12 @@ export default function Layout() {
           <div>
             <div className="text-sm font-semibold mb-3">Liên hệ</div>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              {contact.address && <li>{contact.address}</li>}
-              {(Array.isArray(contact.links) ? contact.links : []).filter((link) => link.label && (/^https:\/\//i.test(link.url || "") || /^mailto:[^\s@?]+@[^\s@?.]+\.[^\s@?]+(?:\?.*)?$/i.test(link.url || ""))).map((link, index) => (
-                <li key={`${link.url}-${index}`}><a href={link.url} target={/^https:\/\//i.test(link.url) ? "_blank" : undefined} rel={/^https:\/\//i.test(link.url) ? "nofollow noreferrer" : undefined} className="hover:text-primary">{link.label}</a></li>
+              {(Array.isArray(contact.entries) ? contact.entries : []).map((entry, index) => (
+                entry.type === "link" && isContactLink(entry.value)
+                  ? <li key={`${entry.value}-${index}`}><a href={entry.value} target={/^https:\/\//i.test(entry.value) ? "_blank" : undefined} rel={/^https:\/\//i.test(entry.value) ? "nofollow noreferrer" : undefined} className="hover:text-primary">{entry.label || entry.value}</a></li>
+                  : entry.type === "text" && entry.value
+                    ? <li key={`text-${index}`}>{entry.label ? `${entry.label}: ` : ""}{entry.value}</li>
+                    : null
               ))}
             </ul>
           </div>
