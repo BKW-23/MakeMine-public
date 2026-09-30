@@ -277,10 +277,8 @@ export default function Layout() {
             <div className="text-sm font-semibold mb-3">Liên hệ</div>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {contact.address && <li>{contact.address}</li>}
-              {contact.email && <li><a href={`mailto:${contact.email}`} className="hover:text-primary">{contact.email}</a></li>}
-              {contact.tiktok && <li><a href={`https://www.tiktok.com/@${encodeURIComponent(contact.tiktok.replace(/^@/, ""))}`} target="_blank" rel="noreferrer" className="hover:text-primary">TikTok: @{contact.tiktok.replace(/^@/, "")}</a></li>}
-              {(Array.isArray(contact.links) ? contact.links : []).filter((link) => link.label && /^https:\/\//i.test(link.url || "")).map((link, index) => (
-                <li key={`${link.url}-${index}`}><a href={link.url} target="_blank" rel="nofollow noreferrer" className="hover:text-primary">{link.label}</a></li>
+              {(Array.isArray(contact.links) ? contact.links : []).filter((link) => link.label && (/^https:\/\//i.test(link.url || "") || /^mailto:[^\s@?]+@[^\s@?.]+\.[^\s@?]+(?:\?.*)?$/i.test(link.url || ""))).map((link, index) => (
+                <li key={`${link.url}-${index}`}><a href={link.url} target={/^https:\/\//i.test(link.url) ? "_blank" : undefined} rel={/^https:\/\//i.test(link.url) ? "nofollow noreferrer" : undefined} className="hover:text-primary">{link.label}</a></li>
               ))}
             </ul>
           </div>
